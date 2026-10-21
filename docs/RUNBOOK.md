@@ -69,7 +69,8 @@ inputs become review flags; they do not trigger a network download.
 
 `cleaned_filings` points to `clean/{accession}/{version}-{source_hash}.json`.
 Blocks preserve order, source index, page, tag, bold/italic/underline, list and
-capitalization features, plus font size for distinguishing chapter headings from
+capitalization features, the leading inline bold/italic heading when present,
+plus font size for distinguishing chapter headings from
 small running footers. Inline-XBRL wrappers retain visible text; hidden content,
 navigation tables, page markers and repeated headers/footers are removed.
 
@@ -97,6 +98,69 @@ a clearly truncated sentence requires review. If candidate counts differ by
 more than 10%, both are logged. A candidate passing checks wins over one failing;
 if both plausible candidates disagree materially, the result remains in review.
 A real large year-over-year change can legitimately trigger the ratio check.
+
+## Offline segmentation, alignment and diff
+
+From `pipeline/`, after `clean` and `extract`:
+
+```sh
+uv run nsl model prepare
+uv run nsl segment --ticker AAPL
+uv run nsl align --ticker AAPL
+uv run nsl diff --ticker AAPL
+```
+
+Repeat with `--ticker MSFT` for the second demo. `--ticker`, `--since`, `--item`
+and `--force` work on these stages. `segment` processes both years; align/diff
+process the pair. A first filing can be segmented but reports `first_filing`
+for alignment/diff. Review-required extractions cannot proceed to comparison.
+Resolving a review note alone does not override that gate.
+
+`model prepare` downloads the public `sentence-transformers/all-MiniLM-L6-v2`
+model at pinned revision `1110a243fdf4706b3f48f1d95db1a4f5529b4d41` into
+`DATA_DIR/models/`. It needs outbound Hugging Face access, no SEC contact or API
+key. It fetches JSON/tokenizer files and safetensors weights, without custom remote
+code. All other comparison commands load local files only. Missing weights yield
+an explicit setup error; there is no silent network download or lexical substitute.
+Linux dependencies use PyTorch's CPU-only wheel index.
+
+`risk_factors` records group, heading, body, role, segmentation mode and half-open
+character offsets into the selected Section text. Standalone category titles are
+group metadata. Introductions and Summary of Risk Factors lists remain context,
+excluded from risk matching. Missing heading formatting falls back to paragraphs.
+The cleaner v2 also retains leading styled headings that share a paragraph with
+body text, including an unstyled final period. Upgrading from v1 requires clean,
+extract and segment again; raw downloads remain cached.
+
+Matching passes remove accepted units before the next pass: normalized exact
+heading, reciprocal unique fuzzy heading with token-set ratio >=85, and local
+MiniLM cosine/Hungarian assignment at `ALIGNMENT_THRESHOLD` (default 0.80).
+Dummy unmatched choices prevent rejected edges from displacing valid matches.
+Duplicate headings use identical text to disambiguate where possible; unresolved
+ones reach body embeddings. Moved badges compare relative order among matched
+factors, so a new factor at the top does not mark every following risk moved.
+
+`diff_records` points to immutable `diffs/{accession}/{item}/{signature}.json`;
+`diffs/{accession}.json` is the convenient current copy. The payload includes
+filing URLs, model/code versions, aligned factors, both original texts, sentence/
+word span operations and explicit mask spans. Ranges are half-open Unicode code
+point offsets (Python slicing); a future JS renderer must convert them rather
+than treating them as UTF-16 offsets. Equal spans may have different original
+text only where `trivial: true` represents a masked date roll. Pysbd splits
+sentences, SequenceMatcher aligns them, and diff-match-patch compares word tokens
+inside changed sentences. Each side reconstructs exactly from its operations.
+
+Mask only the filing's own explicit fiscal year and `as of` report-date phrase.
+Historical years, bare years and unrelated dates remain substantive. This is a
+conservative mask; some harmless year changes will still appear as changes.
+
+Stage signatures include upstream evidence hashes, dependency/code versions,
+model revision, threshold and report dates. A changed segmentation invalidates
+its pair's stored alignments and diff pointer. Downstream reads verify current
+upstream signatures/checksums; stale or corrupt records require rerunning the
+appropriate preceding stage. `--force` rebuilds its own stage. Extraction input
+failures remain gated even if a historical diff blob still exists. None of these
+local artifacts is published to the website yet.
 
 ## Amendments and review
 
@@ -133,8 +197,8 @@ From `web/`: `npm ci`, `npm run dev`. Production: `npm run build` creates
 
 ## Later milestones
 
-Milestones 1–3 are implemented. Milestones 4–7 add risk-factor segmentation,
-alignment, diffs, scores, company views and optional summaries. Milestone 8 enables
+Milestones 1–4 are implemented. Milestones 5–7 add company views, scores,
+full backfill and optional summaries. Milestone 8 enables
 schedules, R2, rebuilding and deployment. No ingest cron runs yet.
 
 Additional sections will use item-specific boundary/segmentation configuration.

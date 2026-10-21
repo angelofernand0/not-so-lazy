@@ -12,6 +12,12 @@ dependencies = [
   "httpx>=0.28,<1",
   "lxml>=5,<7",
   "edgartools>=5.62,<7",
+  "rapidfuzz>=3.14,<4",
+  "diff-match-patch>=20241021",
+  "pysbd>=0.3.4,<0.4",
+  "scipy>=1.15,<2",
+  "sentence-transformers>=5,<6",
+  "torch>=2.6,<3",
 ]
 
 [project.scripts]
@@ -44,3 +50,14 @@ plugins = ["pydantic.mypy"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-ra"
+
+# Keep Linux CI and scheduled batch inference on CPU wheels rather than CUDA.
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", marker = "sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true

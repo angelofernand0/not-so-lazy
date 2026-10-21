@@ -15,11 +15,21 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from notsolazy import __version__
+from notsolazy.align import LocalEncoder, prepare_model
+from notsolazy.comparison import align_pair, diff_pair, invalidate_pair, segment_filing
 from notsolazy.config import Settings, section_rule
 from notsolazy.discover import DISCOVER_VERSION, NoAnnualReport, discover_company
 from notsolazy.fetch import fetch_filing
-from notsolazy.models import Company, CompanyAlias, Filing, FilingPair, ReviewEntry, make_engine
-from notsolazy.processing import process_pair
+from notsolazy.models import (
+    Company,
+    CompanyAlias,
+    Filing,
+    FilingPair,
+    ReviewEntry,
+    SegmentationRun,
+    make_engine,
+)
+from notsolazy.processing import StageInputError, _review, process_pair
 from notsolazy.sec_client import SecClient
 from notsolazy.storage import LocalBlobStore
 from notsolazy.universe import load_snapshot, refresh_snapshot, symbol_key, sync_companies
@@ -36,7 +46,9 @@ def parser_for_cli() -> argparse.ArgumentParser:
         "universe", help="Maintain the cross-checked constituent snapshot"
     )
     universe.add_subparsers(dest="action", required=True).add_parser("refresh")
-    for name in ("discover", "fetch", "clean", "extract"):
+    model = commands.add_parser("model", help="Prepare the pinned local embedding model")
+    model.add_subparsers(dest="action", required=True).add_parser("prepare")
+    for name in ("discover", "fetch", "clean", "extract", "segment", "align", "diff"):
         stage = commands.add_parser(name)
         stage.add_argument(
             "--ticker", help="One current S&P 500 ticker (including share-class aliases)"
@@ -44,11 +56,11 @@ def parser_for_cli() -> argparse.ArgumentParser:
         stage.add_argument(
             "--since", type=date.fromisoformat, help="Current filing date, YYYY-MM-DD"
         )
-        if name in {"clean", "extract"}:
+        if name in {"clean", "extract", "segment", "align", "diff"}:
             stage.add_argument(
                 "--force", action="store_true", help="Recompute this stage from cached inputs"
             )
-        if name == "extract":
+        if name in {"extract", "segment", "align", "diff"}:
             stage.add_argument("--item", help="Section item (defaults to SECTION_ITEM)")
         if name == "discover":
             stage.add_argument(
@@ -180,6 +192,7 @@ def run_offline_stage(args: argparse.Namespace, settings: Settings, session: Ses
         raise ValueError("Use BLOB_BACKEND=local until the R2 adapter arrives.")
     rule = section_rule(getattr(args, "item", None) or settings.section_item)
     store = LocalBlobStore(settings.data_dir)
+    encoder = LocalEncoder(settings.data_dir)
     for company in _companies(session, args.ticker):
         pair = session.scalar(
             select(FilingPair).where(
@@ -194,15 +207,18 @@ def run_offline_stage(args: argparse.Namespace, settings: Settings, session: Ses
         assert current is not None
         if args.since and current.filed_at < args.since:
             continue
-        results = process_pair(
-            session,
-            pair,
-            store,
-            rule,
-            stage=args.command,
-            force=args.force,
-            cache_dir=settings.data_dir / "edgartools",
-        )
+        if args.command in {"segment", "align", "diff"}:
+            results = run_comparison(args, settings, session, pair, store, encoder)
+        else:
+            results = process_pair(
+                session,
+                pair,
+                store,
+                rule,
+                stage=args.command,
+                force=args.force,
+                cache_dir=settings.data_dir / "edgartools",
+            )
         session.commit()
         print(
             json.dumps(
@@ -215,6 +231,91 @@ def run_offline_stage(args: argparse.Namespace, settings: Settings, session: Ses
                 indent=2,
             )
         )
+
+
+def run_comparison(
+    args: argparse.Namespace,
+    settings: Settings,
+    session: Session,
+    pair: FilingPair,
+    store: LocalBlobStore,
+    encoder: LocalEncoder,
+) -> list[dict[str, object]]:
+    rule = section_rule(args.item or settings.section_item)
+    stage = args.command
+    if not pair.prior_accession and stage != "segment":
+        return [{"status": "first_filing", "accession": pair.current_accession}]
+    accessions = (
+        list(dict.fromkeys(filter(None, [pair.prior_accession, pair.current_accession])))
+        if stage == "segment"
+        else [pair.current_accession]
+    )
+    results: list[dict[str, object]] = []
+    for accession in accessions:
+        try:
+            if stage == "segment":
+                segmented = segment_filing(session, accession, store, rule, force=args.force)
+                result: dict[str, object] = {
+                    "accession": accession,
+                    "status": "segmented",
+                    "factor_count": segmented.factor_count,
+                    "segmenter_version": segmented.segmenter_version,
+                }
+            elif stage == "align":
+                aligned = align_pair(
+                    session,
+                    pair,
+                    store,
+                    rule,
+                    encoder,
+                    threshold=settings.alignment_threshold,
+                    force=args.force,
+                )
+                result = {
+                    "accession": accession,
+                    "status": "aligned",
+                    "aligner_version": aligned.aligner_version,
+                    "model_revision": aligned.model_revision,
+                }
+            else:
+                artifact = diff_pair(
+                    session,
+                    pair,
+                    store,
+                    rule,
+                    threshold=settings.alignment_threshold,
+                    force=args.force,
+                )
+                result = {
+                    "accession": accession,
+                    "status": "diffed",
+                    "blob_key": artifact.blob_key,
+                    "sha256": artifact.sha256,
+                    "differ_version": artifact.differ_version,
+                }
+            for entry in session.scalars(
+                select(ReviewEntry).where(
+                    ReviewEntry.accession == accession,
+                    ReviewEntry.stage == stage,
+                    ReviewEntry.resolved_at.is_(None),
+                )
+            ):
+                if entry.reason.startswith(rule.item + ":"):
+                    entry.resolved_at = datetime.now(UTC)
+                    entry.note = (entry.note or "") + " Recomputed successfully by comparison-v1."
+            results.append(result)
+        except (StageInputError, OSError) as error:
+            reason = str(error) if isinstance(error, StageInputError) else "blob_io_error"
+            if stage == "segment":
+                run = session.get(SegmentationRun, (accession, rule.item))
+                if run:
+                    run.input_signature = ""
+            invalidate_pair(session, pair.id, rule.item, alignment=stage != "diff")
+            _review(session, accession, stage, f"{rule.item}:{reason}", "comparison-v1")
+            results.append(
+                {"accession": accession, "status": "review_required", "quality_flags": [reason]}
+            )
+    return results
 
 
 def main() -> None:
@@ -236,11 +337,14 @@ def main() -> None:
                         "section_item": settings.section_item,
                         "sec_identity_configured": bool(settings.sec_user_agent.strip()),
                         "summaries_enabled": settings.summaries_enabled,
-                        "milestone": 3,
+                        "milestone": 4,
                     },
                     indent=2,
                 )
             )
+            return
+        if args.command == "model":
+            print(json.dumps({"model_path": str(prepare_model(settings.data_dir))}))
             return
         url = make_url(settings.database_url.get_secret_value())
         if url.get_backend_name() == "sqlite" and url.database and url.database != ":memory:":
@@ -283,7 +387,7 @@ def main() -> None:
                         entry.resolved_at, entry.note = datetime.now(UTC), args.note
                         session.commit()
                         print("Review resolved. Correct the source and re-run its stage.")
-                elif args.command in {"clean", "extract"}:
+                elif args.command in {"clean", "extract", "segment", "align", "diff"}:
                     run_offline_stage(args, settings, session)
                 else:
                     run_stage(args, settings, session)

@@ -108,6 +108,25 @@ def clean_filing(
     return row
 
 
+def extraction_signature(
+    filing: Filing, cleaned: CleanedFiling, rule: SectionRule, prior_words: int | None
+) -> str:
+    return hashlib.sha256(
+        json.dumps(
+            {
+                "raw": filing.sha256,
+                "clean": cleaned.blocks_sha256,
+                "cleaner": CLEANER_VERSION,
+                "extractor": EXTRACTOR_VERSION,
+                "primary": version("edgartools"),
+                "rule": asdict(rule),
+                "prior_words": prior_words,
+            },
+            sort_keys=True,
+        ).encode()
+    ).hexdigest()
+
+
 def extract_filing(
     session: Session,
     filing: Filing,
@@ -133,20 +152,7 @@ def extract_filing(
         blocks = BLOCKS.validate_json(payload)
     except ValidationError:
         raise StageInputError("invalid_clean_blob") from None
-    signature = hashlib.sha256(
-        json.dumps(
-            {
-                "raw": filing.sha256,
-                "clean": cleaned.blocks_sha256,
-                "cleaner": CLEANER_VERSION,
-                "extractor": EXTRACTOR_VERSION,
-                "primary": version("edgartools"),
-                "rule": asdict(rule),
-                "prior_words": prior_words,
-            },
-            sort_keys=True,
-        ).encode()
-    ).hexdigest()
+    signature = extraction_signature(filing, cleaned, rule, prior_words)
     existing = session.get(Section, (filing.accession, rule.item))
     if (
         existing
