@@ -11,6 +11,7 @@ dependencies = [
   "psycopg[binary]>=3.2,<4",
   "httpx>=0.28,<1",
   "lxml>=5,<7",
+  "edgartools>=5.62,<7",
 ]
 
 [project.scripts]

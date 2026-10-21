@@ -5,10 +5,11 @@ and investment clubs, grounded in SEC EDGAR source filings.
 
 ## Status
 
-Milestone 2: SEC access, a cross-checked S&P 500 universe, annual filing discovery,
-report-date pairing, and cached primary-document downloads. The Apple live demo
-has been verified. Section extraction, comparisons, scores, summaries and deployment
-remain in later PRs. The frontend still shows an honest pre-backfill empty state.
+Milestone 3: cached SEC ingestion plus offline HTML cleaning and dual-path Risk
+Factors extraction. Each extraction preserves both candidates, parser versions,
+source hashes and review flags. Real boundary regression tests cover 12 saved
+SEC documents. Comparisons, scores, summaries and deployment remain in later PRs;
+the frontend still shows an honest pre-backfill empty state.
 
 ![Scaffold homepage preview](docs/scaffold-preview.png)
 
@@ -32,6 +33,8 @@ After setting your real SEC contact in `.env`, from `pipeline/`:
 uv run nsl doctor --require-sec
 uv run nsl discover --ticker AAPL
 uv run nsl fetch --ticker AAPL
+uv run nsl clean --ticker AAPL
+uv run nsl extract --ticker AAPL
 uv run nsl review list
 ```
 
@@ -60,10 +63,16 @@ missing identity, share a <=8 req/s throttle, and cache raw documents. Keep your
 contact in `.env` or GitHub Actions secrets; never commit it. All concurrent
 workers must share `DATA_DIR` so they share the rate-limit SQLite file.
 
+Cleaning and extraction run entirely offline from cached HTML; no SEC identity
+or LLM key is required for those stages. `extract` reads the versioned output of
+`clean`, so run them in order. Use `--force` to recompute; otherwise unchanged
+inputs reuse cached results. The JSON output includes local blob keys and SEC
+source URLs so candidate texts and quality flags can be inspected.
+
 ## Layout
 
-- `pipeline/notsolazy/`: SEC client, universe, discovery/pairing, fetch, CLI and storage.
-- `pipeline/migrations/`: versioned schema for companies, aliases, filings, pairs and review.
+- `pipeline/notsolazy/`: SEC ingestion, HTML blocks, extraction, persistence, CLI and storage.
+- `pipeline/migrations/`: versioned schema for companies, filings, cleaned blocks, sections and review.
 - `pipeline/tests/`: offline tests, fixture and golden-set directories.
 - `web/`: Next.js App Router, TypeScript, Tailwind and static export.
 - `docs/`: decisions, methodology, operations and milestone plan.

@@ -73,3 +73,47 @@ and 2024-09-28; both original HTML files were downloaded with checksums and size
 A repeat fetch passed with socket connections blocked. Postgres migration and
 frontend checks run in the PR CI. Historical metadata flags remain on filing
 records; the review queue focuses on selected periods and recent malformed rows.
+
+## Milestone 3 — Clean and extract (2026-10-21)
+
+- Add edgartools 5.62 with a locked dependency set. Use only its HTML parser on
+  cached source HTML, never Company/Filing network access. Its import-time cache
+  stays under the task data directory rather than the operator's home directory.
+- Emit visible, normalized blocks with formatting inherited from tags and inline
+  CSS. UTF-8 and declared legacy encodings are handled before parsing. Preserve
+  inline text and comments' visible tails; remove hidden XBRL/header content.
+- Keep large chapter titles when identical words recur in smaller running footers.
+  Restrict TOC-table removal to small navigation tables, retaining narrative layout
+  tables and inline source cross-references. Do not remove repeated prose sentences
+  merely because their numbers differ.
+- Keep item/title/end rules in config. The fallback supports adjacent split headings,
+  body text sharing an item-header block, and bare titles backed by an item mapping.
+  Same-level font checks avoid ending at smaller risk-category headings. This is
+  needed for real Honeywell and Intel annual-report cross-reference layouts.
+- Run primary and fallback on every new input signature. Prefer a passing candidate;
+  retain both full candidate texts, versions, counts and flags. Both-passing or
+  both-failing candidates with >10% count disagreement remain flagged for review.
+  Detect obvious sentence truncation found in real primary-parser output.
+- Add cleaned_filings and sections tables with an Alembic migration. Store full
+  block/candidate payloads in blob storage, with checksums and compact DB diagnostics.
+  Keep fallback block ranges; do not invent equivalent block offsets for primary
+  text that was rendered differently by edgartools.
+- Cache by all relevant source, code, rule, dependency and prior-count inputs.
+  Expose offline clean/extract CLI stages and explicit --force recomputation.
+  Review failures preserve evidence; repaired extractions close stale flags with
+  notes, and reproduced flags reopen without losing the prior note.
+- Replace the provisional amendment walker with the shared cleaner/boundaries,
+  bumping discover to v2. A real Tesla 10-K/A exposed a comment-node/style bug in
+  the earlier probe; the saved real amendment is now a regression fixture.
+- Commit 12 full, gzip-compressed SEC HTML sources with URLs and raw SHA-256 plus
+  manually selected start/end snippets. They cover Apple, Microsoft, Alphabet,
+  Honeywell, Intel, JPMorgan Chase, Realty Income, GE Vernova and Tesla, including
+  a Part-III amendment, first post-spin-off annual report and Item 1C boundaries.
+  This is not the future 30-pair golden set or a full-universe accuracy claim.
+
+Validation: 80 offline tests, including real-source boundary/encoding checks,
+cache invalidation, migrations, corrupt-input handling and review lifecycle.
+A smoke run cleaned/extracted 18 cached annual reports with zero network attempts:
+17 passed the automated checks; GE Vernova's current/prior size ratio requires
+review. Full S&P 500 extraction accuracy, alignment evaluation and Brain correlation
+remain pending. The frontend, deployment and schedules are unchanged.

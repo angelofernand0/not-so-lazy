@@ -1,16 +1,26 @@
 # Methodology
 
-Status: design specification, not measured results. No real comparisons have
-been published in Milestone 1.
+Status: ingestion, cleaning and extraction are implemented through Milestone 3.
+No public comparisons or scores have been published. Full-universe validation
+has not been performed.
 
 Source: SEC EDGAR annual reports. Scope: current S&P 500, Item 1A Risk Factors,
 latest versus prior fiscal year. Identify issuers by CIK and retain share-class
 aliases. Pair by report date; flag transitions and missing annual periods.
 
-Planned extraction: edgartools plus a cleaned-block boundary fallback. Hold
-quality-check failures for review. Align by exact heading, fuzzy heading, then
-embedding similarity with Hungarian assignment. Preserve original text and
-character offsets; mask trivial fiscal-date rolls for scoring.
+Extraction runs edgartools and an independent cleaned-block boundary fallback
+on cached HTML. Both candidates are retained with their versions and word counts.
+The cleaner preserves visible text and formatting while removing hidden XBRL,
+navigation and running page artifacts. Numbered, split and cross-referenced chapter
+headings are supported. A candidate passing checks takes precedence; unresolved
+large disagreement, suspect size ratios and boundary failures require review.
+Twelve saved SEC documents have boundary regression checks, not a full-universe
+accuracy evaluation. A smoke run of 18 annual reports retained one size-ratio flag
+for review rather than declaring every extraction ready.
+
+Planned alignment: exact heading, fuzzy heading, then embedding similarity with
+Hungarian assignment. Preserve original text and character offsets; mask trivial
+fiscal-date rolls for scoring.
 
 Headline measure: 1 minus cosine similarity of term-frequency vectors, with
 standard English stop words removed. Also report Jaccard change, structural

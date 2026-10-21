@@ -15,10 +15,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from notsolazy import __version__
-from notsolazy.config import Settings
+from notsolazy.config import Settings, section_rule
 from notsolazy.discover import DISCOVER_VERSION, NoAnnualReport, discover_company
 from notsolazy.fetch import fetch_filing
 from notsolazy.models import Company, CompanyAlias, Filing, FilingPair, ReviewEntry, make_engine
+from notsolazy.processing import process_pair
 from notsolazy.sec_client import SecClient
 from notsolazy.storage import LocalBlobStore
 from notsolazy.universe import load_snapshot, refresh_snapshot, symbol_key, sync_companies
@@ -35,7 +36,7 @@ def parser_for_cli() -> argparse.ArgumentParser:
         "universe", help="Maintain the cross-checked constituent snapshot"
     )
     universe.add_subparsers(dest="action", required=True).add_parser("refresh")
-    for name in ("discover", "fetch"):
+    for name in ("discover", "fetch", "clean", "extract"):
         stage = commands.add_parser(name)
         stage.add_argument(
             "--ticker", help="One current S&P 500 ticker (including share-class aliases)"
@@ -43,6 +44,12 @@ def parser_for_cli() -> argparse.ArgumentParser:
         stage.add_argument(
             "--since", type=date.fromisoformat, help="Current filing date, YYYY-MM-DD"
         )
+        if name in {"clean", "extract"}:
+            stage.add_argument(
+                "--force", action="store_true", help="Recompute this stage from cached inputs"
+            )
+        if name == "extract":
+            stage.add_argument("--item", help="Section item (defaults to SECTION_ITEM)")
         if name == "discover":
             stage.add_argument(
                 "--refresh", action="store_true", help="Refresh cached submissions JSON"
@@ -168,6 +175,48 @@ def run_stage(args: argparse.Namespace, settings: Settings, session: Session) ->
             print(json.dumps(_pair_payload(session, company, pair), indent=2))
 
 
+def run_offline_stage(args: argparse.Namespace, settings: Settings, session: Session) -> None:
+    if settings.blob_backend != "local":
+        raise ValueError("Use BLOB_BACKEND=local until the R2 adapter arrives.")
+    rule = section_rule(getattr(args, "item", None) or settings.section_item)
+    store = LocalBlobStore(settings.data_dir)
+    for company in _companies(session, args.ticker):
+        pair = session.scalar(
+            select(FilingPair).where(
+                FilingPair.cik == company.cik, FilingPair.status != "superseded"
+            )
+        )
+        if pair is None:
+            if args.ticker:
+                raise ValueError(f"No pair for {company.ticker}; run discover and fetch first.")
+            continue
+        current = session.get(Filing, pair.current_accession)
+        assert current is not None
+        if args.since and current.filed_at < args.since:
+            continue
+        results = process_pair(
+            session,
+            pair,
+            store,
+            rule,
+            stage=args.command,
+            force=args.force,
+            cache_dir=settings.data_dir / "edgartools",
+        )
+        session.commit()
+        print(
+            json.dumps(
+                {
+                    "ticker": company.ticker,
+                    "cik": company.cik,
+                    "stage": args.command,
+                    "results": results,
+                },
+                indent=2,
+            )
+        )
+
+
 def main() -> None:
     parser = parser_for_cli()
     args = parser.parse_args()
@@ -187,7 +236,7 @@ def main() -> None:
                         "section_item": settings.section_item,
                         "sec_identity_configured": bool(settings.sec_user_agent.strip()),
                         "summaries_enabled": settings.summaries_enabled,
-                        "milestone": 2,
+                        "milestone": 3,
                     },
                     indent=2,
                 )
@@ -233,9 +282,9 @@ def main() -> None:
                             raise ValueError("A nonempty resolution note is required.")
                         entry.resolved_at, entry.note = datetime.now(UTC), args.note
                         session.commit()
-                        print(
-                            "Review entry resolved. Re-run discovery after correcting its source."
-                        )
+                        print("Review resolved. Correct the source and re-run its stage.")
+                elif args.command in {"clean", "extract"}:
+                    run_offline_stage(args, settings, session)
                 else:
                     run_stage(args, settings, session)
         finally:
