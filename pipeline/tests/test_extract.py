@@ -135,3 +135,23 @@ def test_word_count_outlier_and_configured_item_are_not_hardcoded() -> None:
         b"<p>Item 7. Management Discussion</p><p>Business evidence.</p><p>Item 2. Properties</p>"
     )
     assert "Business evidence." in fallback_extract(clean_html(payload), custom).text
+
+
+def test_primary_footer_is_removed_using_source_artifacts_on_all_platforms(tmp_path: Path) -> None:
+    raw = "<p>Item 1A. Risk Factors</p>"
+    for page in range(1, 4):
+        raw += f'<p>{BODY}</p><div style="font-size:7pt">{page} Example Corporation</div>'
+        raw += '<div style="page-break-after:always"></div>'
+    raw += "<p>Item 1B. Unresolved Staff Comments</p>"
+    payload = raw.encode()
+    blocks = clean_html(payload)
+    fallback = fallback_extract(blocks, RULE)
+
+    # Reproduce the Linux renderer joining a numeric company footer to the body.
+    def primary(*args):
+        return Candidate(fallback.text + " 3 Example Corporation", "edgartools")
+
+    result = extract_section(payload, blocks, RULE, primary=primary, cache_dir=tmp_path)
+    assert result.selected.extractor == "edgartools"
+    assert result.selected.text == fallback.text
+    assert not result.flags

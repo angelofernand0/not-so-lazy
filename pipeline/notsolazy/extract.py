@@ -9,10 +9,10 @@ from dataclasses import dataclass, field
 from importlib.metadata import version
 from pathlib import Path
 
-from notsolazy.clean import Block, decode_html, normalize_text
+from notsolazy.clean import Block, clean_html, decode_html, normalize_text
 from notsolazy.config import SectionRule
 
-EXTRACTOR_VERSION = "extract-v1"
+EXTRACTOR_VERSION = "extract-v2"
 
 
 @dataclass
@@ -165,6 +165,28 @@ def quality_flags(candidate: Candidate, rule: SectionRule, prior_words: int | No
     return sorted(set(flags))
 
 
+def _clean_primary_artifacts(text: str, payload: bytes) -> str:
+    removed: set[str] = set()
+    clean_html(payload, removed_texts=removed)
+    # Source-derived numeric page/header artifacts are safe to remove from the
+    # primary renderer too. Preserve the first line, which can be a split item
+    # heading; never blacklist a chapter title just because a footer repeats it.
+    artifacts = {value for value in removed if re.search(r"\d", value)}
+    lines = [
+        line
+        for i, line in enumerate(text.splitlines())
+        if line.strip() and (i == 0 or normalize_text(line) not in artifacts)
+    ]
+    result = "\n\n".join(lines)
+    # Some libxml/platform combinations join a footer to the last paragraph.
+    for artifact in sorted(artifacts, key=len, reverse=True):
+        if result.endswith(artifact):
+            start = len(result) - len(artifact)
+            if start > 0 and result[start - 1].isspace():
+                result = result[:start].rstrip()
+    return result
+
+
 def extract_section(
     payload: bytes,
     blocks: list[Block],
@@ -177,6 +199,8 @@ def extract_section(
     warnings: list[str] = []
     try:
         first = primary(payload, rule, cache_dir)
+        if first.text:
+            first.text = _clean_primary_artifacts(first.text, payload)
     except Exception as error:
         # A parser failure is recorded and can be recovered by the independent path.
         first = Candidate("", "edgartools", ["parser_error"])

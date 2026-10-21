@@ -93,7 +93,7 @@ def css(style: str) -> dict[str, str]:
     }
 
 
-def clean_html(payload: bytes) -> list[Block]:
+def clean_html(payload: bytes, *, removed_texts: set[str] | None = None) -> list[Block]:
     tree = html.fromstring(
         decode_html(payload), parser=html.HTMLParser(no_network=True, recover=True)
     )
@@ -278,4 +278,6 @@ def clean_html(payload: bytes) -> list[Block]:
                 r"\b(?:form\s+10-k|table of contents)\b", text, re.I
             ):
                 removed.add(i)
+    if removed_texts is not None:
+        removed_texts.update(blocks[i].text for i in removed)
     return [block for i, block in enumerate(blocks) if i not in removed]

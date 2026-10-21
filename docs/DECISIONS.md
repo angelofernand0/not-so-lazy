@@ -111,9 +111,16 @@ records; the review queue focuses on selected periods and recent malformed rows.
   a Part-III amendment, first post-spin-off annual report and Item 1C boundaries.
   This is not the future 30-pair golden set or a full-universe accuracy claim.
 
-Validation: 80 offline tests, including real-source boundary/encoding checks,
+Validation: 81 offline tests, including real-source boundary/encoding checks,
 cache invalidation, migrations, corrupt-input handling and review lifecycle.
 A smoke run cleaned/extracted 18 cached annual reports with zero network attempts:
 17 passed the automated checks; GE Vernova's current/prior size ratio requires
 review. Full S&P 500 extraction accuracy, alignment evaluation and Brain correlation
 remain pending. The frontend, deployment and schedules are unchanged.
+
+CI portability fix: the Linux edgartools renderer retained a numeric company
+footer in an otherwise complete Honeywell section. Apply the cleaner's
+source-derived numeric artifact list to primary output as well, including joined
+trailing footers. Keep reviewed anchors unchanged and bump extractor to v2 so
+existing cache entries are recomputed. A dedicated regression reproduces this
+renderer behavior without depending on the host platform.
