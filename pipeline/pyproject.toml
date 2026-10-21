@@ -4,9 +4,13 @@ version = "0.1.0"
 description = "A reproducible SEC annual-report language change pipeline"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-  "pydantic>=2.11,<3", "pydantic-settings>=2.10,<3",
-  "sqlalchemy>=2.0,<3", "alembic>=1.16,<2",
-  "psycopg[binary]>=3.2,<4", "httpx>=0.28,<1",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "sqlalchemy>=2.0,<3",
+  "alembic>=1.16,<2",
+  "psycopg[binary]>=3.2,<4",
+  "httpx>=0.28,<1",
+  "lxml>=5,<7",
 ]
 
 [project.scripts]
@@ -17,7 +21,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = ["pytest>=8,<10", "ruff>=0.11,<1", "mypy>=1.15,<2"]
+dev = [
+    "pytest>=8,<10",
+    "ruff>=0.11,<1",
+    "mypy>=1.15,<2",
+    "types-lxml>=2026.2.16",
+]
 
 [tool.ruff]
 target-version = "py312"

@@ -5,9 +5,10 @@ and investment clubs, grounded in SEC EDGAR source filings.
 
 ## Status
 
-Milestone 1: runnable scaffold. This is not the finished tracker. Ingestion,
-real company comparisons, scores, summaries and deployment remain in later PRs.
-The frontend deliberately shows an empty state instead of invented market data.
+Milestone 2: SEC access, a cross-checked S&P 500 universe, annual filing discovery,
+report-date pairing, and cached primary-document downloads. The Apple live demo
+has been verified. Section extraction, comparisons, scores, summaries and deployment
+remain in later PRs. The frontend still shows an honest pre-backfill empty state.
 
 ![Scaffold homepage preview](docs/scaffold-preview.png)
 
@@ -25,6 +26,22 @@ uv run nsl init-db
 uv run alembic upgrade head
 ```
 
+After setting your real SEC contact in `.env`, from `pipeline/`:
+
+```sh
+uv run nsl doctor --require-sec
+uv run nsl discover --ticker AAPL
+uv run nsl fetch --ticker AAPL
+uv run nsl review list
+```
+
+The committed snapshot contains 503 tickers for 500 issuers, cross-checked against
+SEC CIKs. `uv run nsl universe refresh` rebuilds it and refuses mismatches.
+Omit `--ticker` to process the universe. `--since YYYY-MM-DD` selects pairs by
+current filing date; it does not remove the older history needed for pairing.
+Use `discover --refresh` to bypass the 24-hour submissions cache. Raw documents
+are immutable in the cache and are never refetched by `fetch`.
+
 In another terminal, from the repository root:
 
 ```sh
@@ -36,19 +53,21 @@ npm run dev
 Open http://localhost:3000. Frontend data lives in `web/public/site/`; no keys
 or backend are needed to preview. Keys must never use a `NEXT_PUBLIC_` prefix.
 
-Before any future EDGAR request, set `SEC_USER_AGENT` in `.env` to
+Before any EDGAR request, set `SEC_USER_AGENT` in `.env` to
 `NotSoLazy/0.1 your-real-contact@example.com`, then run
-`uv run nsl doctor --require-sec` from `pipeline/`. Network stages will refuse
-missing identity, throttle globally to <=8 req/s, and cache raw documents.
+`uv run nsl doctor --require-sec` from `pipeline/`. Network stages refuse
+missing identity, share a <=8 req/s throttle, and cache raw documents. Keep your
+contact in `.env` or GitHub Actions secrets; never commit it. All concurrent
+workers must share `DATA_DIR` so they share the rate-limit SQLite file.
 
 ## Layout
 
-- `pipeline/notsolazy/`: config, CLI, SQLAlchemy base and blob contract/local store.
-- `pipeline/migrations/`: Alembic setup; stage migrations arrive with stage tables.
+- `pipeline/notsolazy/`: SEC client, universe, discovery/pairing, fetch, CLI and storage.
+- `pipeline/migrations/`: versioned schema for companies, aliases, filings, pairs and review.
 - `pipeline/tests/`: offline tests, fixture and golden-set directories.
 - `web/`: Next.js App Router, TypeScript, Tailwind and static export.
 - `docs/`: decisions, methodology, operations and milestone plan.
-- `.github/workflows/ci.yml`: Python checks and frontend static build on PRs.
+- `.github/workflows/ci.yml`: offline Python tests, frontend build and Postgres migrations.
 
 ## Validate
 
