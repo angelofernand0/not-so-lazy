@@ -6,16 +6,16 @@ export default function Methodology() {
       <p className="eyebrow">SHOW YOUR WORK</p>
       <h1>Every change needs a source.</h1>
       <p className="lead">
-        Our intended methodology, and what still needs to be validated.
+        How the preview works, and what still needs to be validated.
       </p>
       <div className="notice">
-        Development preview. No filing comparisons, scores, or AI summaries have
-        been published.
+        Local preview: 20 companies, 40 annual filings, 19 comparisons and one
+        held for review. Scores and AI summaries are not available yet.
       </div>
       <h2>Start with the original.</h2>
       <p>
-        The pipeline will compare Item 1A, Risk Factors, in a company’s latest
-        10-K with its prior fiscal year’s annual report, sourced from{" "}
+        The pipeline compares Item 1A, Risk Factors, in a company’s latest 10-K
+        with its prior fiscal year’s annual report, sourced from{" "}
         <a href="https://www.sec.gov/edgar/search/">SEC EDGAR</a>. Companies are
         keyed by CIK to handle ticker changes and multiple share classes.
       </p>
@@ -29,9 +29,13 @@ export default function Methodology() {
       </p>
       <h2>Keep the evidence visible.</h2>
       <p>
-        Diffs will preserve the original words and link to both filings.
-        Optional AI summaries must include quotes verified against their source
-        factors. Comparisons that fail extraction checks will be held for
+        Diffs preserve the original words and link to both filings. Matching
+        uses exact headings, fuzzy headings and local semantic similarity.
+        One-to-one matching can report split or merged risks as additions and
+        removals. Introductions and summary lists remain separate context. The
+        trivial-change toggle highlights explicit fiscal-year and report-date
+        rolls. Optional AI summaries must include quotes verified against their
+        source factors. Comparisons that fail extraction checks are held for
         review.
       </p>
       <h2>Research context.</h2>

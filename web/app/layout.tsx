@@ -25,7 +25,7 @@ export default function RootLayout({
             <span className="brand-mark" aria-hidden="true">
               nsl.
             </span>
-            Not So Lazy<span className="beta">IN DEVELOPMENT</span>
+            Not So Lazy<span className="beta">LOCAL PREVIEW</span>
           </Link>
           <nav aria-label="Main navigation">
             <Link href="/leaderboard/">Biggest changers</Link>

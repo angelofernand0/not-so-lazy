@@ -19,9 +19,10 @@ export default function About() {
       </p>
       <h2>Project status</h2>
       <p>
-        This is the initial scaffold. Filing ingestion, comparisons, scores, and
-        summaries are still in development. A project contact and maintainer
-        attribution will be added before launch.
+        This local preview includes 20 companies, with 19 source-linked
+        comparisons and one filing held for review. Scores, summaries and the
+        full S&P 500 backfill are still in development. A project contact and
+        maintainer attribution will be added before launch.
       </p>
       <h2>Disclaimer</h2>
       <p>

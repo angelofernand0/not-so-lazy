@@ -5,12 +5,12 @@ and investment clubs, grounded in SEC EDGAR source filings.
 
 ## Status
 
-Milestone 4: offline Risk Factors segmentation, three-pass year-over-year alignment,
-and original-text span diffs on cached SEC extractions. Apple and Microsoft JSON
-demos have been generated with the pinned local embedding model. Source checksums,
-parser/matcher versions and review flags are preserved. Company pages, scores,
-summaries, full backfill and deployment remain in later PRs; the frontend still
-shows the pre-backfill empty state.
+Milestone 5: searchable company pages and side-by-side Risk Factors diffs from
+real local JSON. The committed preview covers 20 companies / 40 annual filings:
+19 comparisons pass the current automated checks; GE Vernova is held for review.
+The UI supports group/type filters, changed-only, collapsible risks, original SEC
+links and a trivial-date toggle. Scores, summaries, full-universe validation and
+production deployment remain later milestones.
 
 ![Scaffold homepage preview](docs/scaffold-preview.png)
 
@@ -74,6 +74,17 @@ or LLM key is required for those stages. `extract` reads the versioned output of
 inputs reuse cached results. The JSON output includes local blob keys and SEC
 source URLs so candidate texts and quality flags can be inspected.
 
+To rebuild the committed local site snapshot, after the preceding stages, run:
+
+```sh
+uv run nsl preview --tickers AAPL,MSFT,GOOG,HON,INTC,JPM,O,GEV,TSLA,AMZN,NVDA,META,WMT,COST,V,DIS,JNJ,PG,HD,KO --output ../web/public/site
+```
+
+The website already includes this preview data. Cloning it and running the web
+commands needs no database, SEC contact, model download or API key. Company
+pages load only their own same-origin diff JSON. Try `/c/AAPL/`, `/c/MSFT/` or
+`/c/GEV/` (review state). This is a development dataset, not a full S&P 500 release.
+
 The embedding model is pinned by commit and stored under `DATA_DIR/models/`.
 `model prepare` is the only model-download command. Segment, align and diff are
 offline and refuse missing/stale inputs or extraction flags. Alignment requires
@@ -101,7 +112,7 @@ uv run mypy notsolazy
 uv run pytest
 ```
 
-From `web/` run `npm run lint`, `npm run typecheck`, and `npm run build`.
+From `web/` run `npm run lint`, `npm run typecheck`, `npm run test`, and `npm run build`.
 
 ## Deployment plan
 

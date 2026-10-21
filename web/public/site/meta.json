@@ -1,8 +1,1 @@
-{
-  "schema_version": 1,
-  "status": "awaiting_backfill",
-  "last_updated": null,
-  "filing_count": 0,
-  "company_count": 0,
-  "pipeline_versions": {}
-}
+{"company_count":20,"comparison_count":19,"filing_count":40,"last_updated":"2026-10-21T17:34:40.322583+00:00","pipeline_versions":{"aligner":"align-v1","cleaner":"clean-v2","differ":"diff-v1","extractor":"extract-v2","preview":"preview-v1","segmenter":"segment-v2"},"schema_version":1,"status":"local_preview"}

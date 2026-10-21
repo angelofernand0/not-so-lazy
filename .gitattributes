@@ -1,0 +1,6 @@
+# Reproducible local preview payloads; keep code review focused on the exporter and UI.
+web/public/site/companies/*.json linguist-generated=true
+web/public/site/diffs/*.json linguist-generated=true
+web/public/site/search-index.json linguist-generated=true
+web/public/site/meta.json linguist-generated=true
+web/public/site/preview-manifest.json linguist-generated=true
