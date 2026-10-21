@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { SearchEntry } from "../lib/types";
+import { normalizeSearch, searchCompanies } from "../lib/search";
 
 export default function CompanySearch({
   entries,
@@ -16,21 +17,8 @@ export default function CompanySearch({
   const [open, setOpen] = useState(false);
   const id = useId();
   const router = useRouter();
-  const term = query.trim().toLowerCase().replaceAll(".", "-");
-  const results = entries
-    .filter((entry) =>
-      `${entry.ticker} ${entry.name} ${entry.aliases.join(" ")}`
-        .toLowerCase()
-        .replaceAll(".", "-")
-        .includes(term),
-    )
-    .sort(
-      (a, b) =>
-        Number(b.ticker.toLowerCase() === term) -
-          Number(a.ticker.toLowerCase() === term) ||
-        a.ticker.localeCompare(b.ticker),
-    )
-    .slice(0, 7);
+  const term = normalizeSearch(query);
+  const results = searchCompanies(entries, query);
   const visible = open && term.length > 0;
   return (
     <div

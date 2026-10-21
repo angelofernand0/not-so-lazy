@@ -204,10 +204,14 @@ golden set, full S&P 500 validation and Brain correlation remain Milestone 6 wor
   Sites skill's local workflow; do not register or deploy a separate hosted Site.
 
 Validation: 128 Python tests pass, including snapshot idempotency, stale/corrupt
-input exclusion, alias selection, first-filing and absent-pair states. Frontend
+input exclusion, alias selection, first-filing and absent-pair states. Six frontend
 unit/snapshot tests, ESLint, TypeScript and the static export pass. Browser checks
 cover keyboard search, source links, filters, collapse/expand, review state and
 responsive columns (1280 desktop / 390 mobile, no horizontal overflow). All offline
 processing of the 20-issuer dataset completed with zero network attempts after
 SEC documents were cached through the shared rate-limited client. Precision/recall,
 full backfill, scores and Brain correlation remain Milestone 6 work.
+
+Search regression: normalize punctuation and whitespace so common names such as
+“Coca Cola” match the source name “Coca-Cola”, while share-class dots/hyphens
+and aliases still resolve correctly. Keep exact ticker results first.
