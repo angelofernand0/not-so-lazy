@@ -1,6 +1,7 @@
 """Environment configuration. Offline commands do not require an SEC identity."""
 
 import re
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
@@ -33,3 +34,39 @@ class Settings(BaseSettings):
     @property
     def summaries_enabled(self) -> bool:
         return bool(self.anthropic_api_key and self.anthropic_api_key.get_secret_value().strip())
+
+
+@dataclass(frozen=True)
+class SectionRule:
+    item: str
+    title: str
+    next_headers: tuple[tuple[str, str], ...]
+    primary_key: str
+    min_words: int = 2000
+    bare_end_titles: tuple[str, ...] = ()
+
+
+SECTION_RULES = {
+    "1A": SectionRule(
+        "1A",
+        "Risk Factors",
+        (("1B", "Unresolved Staff Comments"), ("1C", "Cybersecurity"), ("2", "Properties")),
+        "risk_factors",
+        bare_end_titles=(
+            "Quantitative and Qualitative Disclosures about Market Risks",
+            "Quantitative and Qualitative Disclosures About Market Risk",
+            "Other Key Information",
+            "Unresolved Staff Comments",
+            "Cybersecurity",
+            "Properties",
+            "Legal Proceedings",
+        ),
+    ),
+}
+
+
+def section_rule(item: str) -> SectionRule:
+    try:
+        return SECTION_RULES[item.upper()]
+    except KeyError:
+        raise ValueError(f"Section {item} is not supported yet.") from None

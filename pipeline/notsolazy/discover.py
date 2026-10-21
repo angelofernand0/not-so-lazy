@@ -8,7 +8,6 @@ from datetime import UTC, date, datetime
 from typing import Any
 from urllib.parse import quote
 
-from lxml import html
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -16,7 +15,7 @@ from notsolazy.fetch import fetch_filing
 from notsolazy.models import Company, Filing, FilingPair, ReviewEntry
 from notsolazy.sec_client import SecClient
 
-DISCOVER_VERSION = "discover-v1"
+DISCOVER_VERSION = "discover-v2"
 ANNUAL_FORMS = frozenset({"10-K", "10-KT"})
 
 
@@ -81,28 +80,21 @@ def queue_review(session: Session, filing: Filing, reason: str) -> None:
 
 
 def amendment_item_status(payload: bytes, item: str) -> str:
-    """Conservative presence check, not a substitute for Milestone 3 extraction.
+    """Presence probe shares the cleaner/boundaries; full extraction checks follow."""
+    from notsolazy.clean import clean_html
+    from notsolazy.config import section_rule
+    from notsolazy.extract import fallback_extract
 
-    TOC-only mentions do not qualify. Short or unterminated bodies go to review.
-    """
-    tree = html.fromstring(payload)
-    for node in tree.xpath("//script|//style|//*[local-name()='header']"):
-        node.drop_tree()
-    for node in list(tree.iter()):
-        if "display:none" in node.get("style", "").replace(" ", "").lower():
-            node.drop_tree()
-    text = " ".join(" ".join(tree.itertext()).split())
-    starts = list(
-        re.finditer(rf"\bitem\s*{re.escape(item)}\s*[.:-]?\s*risk\s+factors\b", text, re.I)
-    )
-    if not starts:
-        return "absent"
-    for start in starts:
-        tail = text[start.end() :]
-        end = re.search(r"\bitem\s*(?:1b|1c|2)\s*[.:-]?(?:\s|$)", tail, re.I)
-        if end and len(tail[: end.start()].split()) >= 250:
-            return "present"
-    return "needs_review"
+    blocks = clean_html(payload)
+    candidate = fallback_extract(blocks, section_rule(item))
+    if "section_not_found" in candidate.flags:
+        mention = re.search(
+            rf"\bitem\s*{re.escape(item)}\b", " ".join(b.text for b in blocks), re.I
+        )
+        return "needs_review" if mention else "absent"
+    if candidate.flags or candidate.word_count < 250:
+        return "needs_review"
+    return "present"
 
 
 def choose_pair(filings: list[Filing]) -> tuple[Filing, Filing | None, str, list[str]]:

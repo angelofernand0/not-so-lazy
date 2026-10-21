@@ -11,6 +11,7 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
+    Text,
     create_engine,
     event,
 )
@@ -83,6 +84,41 @@ class ReviewEntry(Base):
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     note: Mapped[str | None] = mapped_column(String(2000))
     code_version: Mapped[str] = mapped_column(String(50))
+
+
+class CleanedFiling(Base):
+    __tablename__ = "cleaned_filings"
+    accession: Mapped[str] = mapped_column(ForeignKey("filings.accession"), primary_key=True)
+    blob_key: Mapped[str] = mapped_column(String(250))
+    source_sha256: Mapped[str] = mapped_column(String(64))
+    blocks_sha256: Mapped[str] = mapped_column(String(64))
+    block_count: Mapped[int] = mapped_column(Integer)
+    word_count: Mapped[int] = mapped_column(Integer)
+    cleaner_version: Mapped[str] = mapped_column(String(50))
+    quality_flags: Mapped[list[str]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class Section(Base):
+    __tablename__ = "sections"
+    accession: Mapped[str] = mapped_column(ForeignKey("filings.accession"), primary_key=True)
+    item: Mapped[str] = mapped_column(String(10), primary_key=True)
+    text: Mapped[str] = mapped_column(Text)
+    text_sha256: Mapped[str] = mapped_column(String(64))
+    word_count: Mapped[int] = mapped_column(Integer)
+    extractor: Mapped[str] = mapped_column(String(30))
+    extractor_version: Mapped[str] = mapped_column(String(50))
+    primary_version: Mapped[str] = mapped_column(String(50))
+    cleaner_version: Mapped[str] = mapped_column(String(50))
+    input_signature: Mapped[str] = mapped_column(String(64))
+    prior_word_count: Mapped[int | None] = mapped_column(Integer)
+    start_block: Mapped[int | None] = mapped_column(Integer)
+    end_block: Mapped[int | None] = mapped_column(Integer)
+    quality_flags: Mapped[list[str]] = mapped_column(JSON)
+    warnings: Mapped[list[str]] = mapped_column(JSON)
+    diagnostics: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    candidates_blob_key: Mapped[str] = mapped_column(String(250))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
 def make_engine(database_url: str, **kwargs: Any) -> Engine:
