@@ -31,8 +31,10 @@ class Factor:
 
 def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -> list[Factor]:
     source_styles: dict[str, list[tuple[int, Block]]] = {}
-    for index, block in enumerate(blocks):
-        source_styles.setdefault(normalize_text(block.text), []).append((index, block))
+    for index, source_block in enumerate(blocks):
+        source_styles.setdefault(normalize_text(source_block.text), []).append(
+            (index, source_block)
+        )
     styles: dict[int, Block] = {}
     cursor = 0
     paragraphs: list[re.Match[str]] = []
