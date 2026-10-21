@@ -73,3 +73,15 @@ def test_unstyled_final_period_belongs_to_inline_heading():
     assert factors[0].heading == "Our reputation may be harmed."
     assert factors[0].body == "We rely on customer trust."
     assert text[factors[0].start : factors[0].end] == factors[0].text
+
+
+def test_styled_summary_bullets_are_context_not_separate_risks():
+    _, factors = parse(
+        "<p>Item 1A. Risk Factors</p><p>Summary of Risk Factors</p>"
+        "<ul><li><b>Suppliers could harm our business.</b></li>"
+        "<li><i>Credit could harm our business.</i></li></ul>"
+        "<p><b>Suppliers could harm our business.</b></p><p>Full evidence.</p>"
+    )
+    assert [f.role for f in factors] == ["summary", "risk"]
+    assert "Credit could harm" in factors[0].text
+    assert factors[1].group == ""

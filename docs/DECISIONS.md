@@ -162,7 +162,7 @@ renderer behavior without depending on the host platform.
 - Store versioned JSON evidence plus `diffs/{current_accession}.json` as the latest
   local copy. No company page, score, summary, publishing or deployment in this PR.
 
-Validation: 120 offline unit/integration/source tests pass, as do strict mypy,
+Validation: 121 offline unit/integration/source tests pass, as do strict mypy,
 Ruff and Alembic schema/model comparison. Apple 2024/2025 and Microsoft 2025/2026 demos
 were generated with the real pinned MiniLM model and socket connections blocked:
 zero network attempts. Apple matched 27 risks and retained one removed risk;

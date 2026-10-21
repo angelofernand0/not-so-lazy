@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from notsolazy.clean import Block, normalize_text
 from notsolazy.config import SectionRule
 
-SEGMENTER_VERSION = "segment-v1"
+SEGMENTER_VERSION = "segment-v2"
 
 
 @dataclass(frozen=True)
@@ -30,10 +30,19 @@ class Factor:
 
 
 def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -> list[Factor]:
-    styles = {normalize_text(block.text): block for block in blocks}
+    source_styles: dict[str, list[tuple[int, Block]]] = {}
+    for index, block in enumerate(blocks):
+        source_styles.setdefault(normalize_text(block.text), []).append((index, block))
+    styles: dict[int, Block] = {}
+    cursor = 0
     paragraphs: list[re.Match[str]] = []
     for paragraph in re.finditer(r"\S(?:[^\n]|\n(?!\s*\n))*", text):
-        block = styles.get(normalize_text(paragraph.group()))
+        candidates = source_styles.get(normalize_text(paragraph.group()), [])
+        chosen = next(((index, block) for index, block in candidates if index >= cursor), None)
+        block = chosen[1] if chosen else None
+        if chosen:
+            cursor = chosen[0] + 1
+            styles[paragraph.start()] = chosen[1]
         prefix = block.leading_heading if block else ""
         if prefix and 4 <= len(prefix.split()) <= 100 and paragraph.group().startswith(prefix):
             cut = paragraph.start() + len(prefix)
@@ -44,7 +53,7 @@ def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -
             if remainder:
                 paragraphs.append(remainder)
             assert block is not None
-            styles[normalize_text(prefix)] = block.model_copy(update={"is_bold": True})
+            styles[paragraph.start()] = block.model_copy(update={"is_bold": True})
         else:
             paragraphs.append(paragraph)
     heading_ids: set[int] = set()
@@ -60,7 +69,7 @@ def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -
         ):
             titles.add(i)
             continue
-        block = styles.get(normalize_text(value))
+        block = styles.get(paragraph.start())
         styled = block and (
             block.is_bold
             or block.is_italic
@@ -71,6 +80,8 @@ def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -
         if re.fullmatch(r"summary of (?:our )?risk factors[.:]?", value, re.I):
             summaries.add(i)
             groups.add(i)
+        elif (block and block.is_list_item) or re.match(r"^[•●▪]\s*", value):
+            continue
         elif styled and len(value.split()) <= 18 and not re.search(r"[.!?;:]$", value):
             # Small mixed bold/italic labels are commonly subheads within a risk.
             if block and not (block.is_bold and block.is_italic and heading_ids):
@@ -124,6 +135,8 @@ def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -
             summary = i in summaries
         elif i in heading_ids:
             flush()
+            if summary:
+                group = ""
             summary = False
             heading = paragraph.group().strip()
             pending = [i]
