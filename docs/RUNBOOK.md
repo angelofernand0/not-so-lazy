@@ -186,6 +186,42 @@ If a resolved flag is reproduced later, it reopens with the prior resolution
 noted. Resolving a review entry does not change the extracted source text or
 silently remove its quality flags.
 
+## Local company preview
+
+From `pipeline/`, after the earlier stage commands:
+
+```sh
+uv run nsl preview --tickers AAPL,MSFT,GOOG,HON,INTC,JPM,O,GEV,TSLA,AMZN,NVDA,META,WMT,COST,V,DIS,JNJ,PG,HD,KO --output ../web/public/site
+```
+
+This command is fully offline and does not generate missing upstream stages. It
+verifies current source/run signatures, the diff blob checksum and complete span
+coverage before exporting. Failed quality/integrity checks produce a review page
+with original SEC links and no stale counts/diff pointer. First filings and absent
+pairs have separate states. The explicit ticker list avoids accidental full
+backfill. Omitted prior snapshot companies/diffs are removed only if owned by the
+exporter's manifest; unrelated files are left alone. Outputs are deterministic
+for unchanged upstream records. This local snapshot command is not the future
+production publish/R2 workflow.
+
+The committed snapshot includes 20 companies and 40 reports. GE Vernova is in
+review; the other 19 have comparisons. To refresh it, run discover/fetch, then
+clean/extract/segment/align/diff per selected issuer and rerun preview. Never clear
+quality flags merely to publish a comparison. A future build must read the new
+snapshot before deployment. Original cache/DB/model files are never included.
+
+From `web/`: `npm ci`, then `npm run dev`. `/` searches the preview by company,
+ticker or known share-class alias. `/c/AAPL/` and `/c/MSFT/` show real comparisons;
+`/c/GEV/` shows the held-for-review state. Unknown routes use the static 404 page.
+The site verifies diff SHA-256 and Unicode offset coverage before rendering;
+failed fetch/validation shows a retry action, never partial risk text.
+
+Build with `npm run build`: Next.js emits all 20 company pages into `out/` using
+local JSON. This build requires no EDGAR, embedding model or database connection.
+`npm run test` runs Node 22 TypeScript helper and full-snapshot integrity tests.
+The UI reads no server runtime API and carries no keys. Scores, percentile cards,
+AI summary cards and pitch-deck copy belong to later milestones.
+
 ## Checks and frontend
 
 Pipeline: `uv run ruff check .`, `uv run ruff format --check .`,
@@ -193,12 +229,12 @@ Pipeline: `uv run ruff check .`, `uv run ruff format --check .`,
 Migration tests use disposable SQLite databases, never the operator's database.
 
 From `web/`: `npm ci`, `npm run dev`. Production: `npm run build` creates
-`web/out/`. Validate with `npm run lint` and `npm run typecheck`.
+`web/out/`. Validate with `npm run lint`, `npm run typecheck` and `npm run test`.
 
 ## Later milestones
 
-Milestones 1–4 are implemented. Milestones 5–7 add company views, scores,
-full backfill and optional summaries. Milestone 8 enables
+Milestones 1–5 are implemented. Milestones 6–7 add scores, full backfill,
+validation and optional summaries. Milestone 8 enables
 schedules, R2, rebuilding and deployment. No ingest cron runs yet.
 
 Additional sections will use item-specific boundary/segmentation configuration.

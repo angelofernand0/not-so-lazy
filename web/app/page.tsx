@@ -1,7 +1,10 @@
 import Link from "next/link";
 import meta from "../public/site/meta.json";
+import { searchIndex } from "../lib/site-data";
+import CompanySearch from "../components/company-search";
 
-export default function Home() {
+export default async function Home() {
+  const entries = await searchIndex();
   return (
     <>
       <section className="hero">
@@ -17,18 +20,7 @@ export default function Home() {
           See what changed in every 10-K. Compare this year’s risk factors with
           last year’s, and get straight to the language that matters.
         </p>
-        <div className="search-preview">
-          <span aria-hidden="true">⌕</span>
-          <label className="sr-only" htmlFor="company-search">
-            Company search, available after the first backfill
-          </label>
-          <input
-            id="company-search"
-            placeholder="Search a company or ticker"
-            disabled
-          />
-          <span className="keycap">SOON</span>
-        </div>
+        <CompanySearch entries={entries} />
         <p className="caption">
           Free for curious students. Built for your next stock pitch.
         </p>
@@ -41,6 +33,33 @@ export default function Home() {
           </p>
         </div>
       </section>
+      <section className="edition">
+        <div>
+          <span className="eyebrow">THE READING ROOM</span>
+          <h2>Open a company’s latest comparison</h2>
+        </div>
+        <span className="caption">
+          {entries.length} companies in this preview
+        </span>
+      </section>
+      <div className="company-directory">
+        {entries.map((entry) => (
+          <Link
+            href={`/c/${entry.ticker}/`}
+            className="directory-company"
+            key={entry.ticker}
+          >
+            <span className="directory-ticker">{entry.ticker}</span>
+            <strong>{entry.name}</strong>
+            <span>{entry.sector}</span>
+            <small>
+              {entry.status === "ready"
+                ? "Read the changes ↗"
+                : "View filing status ↗"}
+            </small>
+          </Link>
+        ))}
+      </div>
       <section className="edition">
         <div>
           <span className="eyebrow">THE CHANGE REPORT</span>
@@ -58,12 +77,13 @@ export default function Home() {
           <p className="eyebrow">FIRST EDITION IN PROGRESS</p>
           <h3 id="empty-heading">The next filing season starts here.</h3>
           <p>
-            We’re preparing the first S&P 500 backfill. Once filings have been
-            processed and checked, you’ll see the companies whose risk language
-            changed most.
+            The reading room is open for this preview. Rankings will follow the
+            broader S&P 500 backfill and validation of the language-change
+            scores.
           </p>
           <span className="status-line">
-            {meta.filing_count} filings published · No rankings available yet
+            {meta.filing_count} annual filings in the local preview · No
+            rankings available yet
           </span>
         </div>
       </section>

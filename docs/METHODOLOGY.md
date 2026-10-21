@@ -1,8 +1,9 @@
 # Methodology
 
 Status: ingestion, cleaning and extraction are implemented with segmentation, alignment and diff through Milestone 4.
-No public comparisons or scores have been published. Full-universe validation
-has not been performed.
+The local website preview contains 20 issuers / 40 reports, with 19 comparisons
+and one extraction held for review. Scores and summaries are not available.
+Full-universe validation has not been performed.
 
 Source: SEC EDGAR annual reports. Scope: current S&P 500, Item 1A Risk Factors,
 latest versus prior fiscal year. Identify issuers by CIK and retain share-class

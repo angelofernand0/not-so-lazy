@@ -29,6 +29,7 @@ from notsolazy.models import (
     SegmentationRun,
     make_engine,
 )
+from notsolazy.preview import export_preview
 from notsolazy.processing import StageInputError, _review, process_pair
 from notsolazy.sec_client import SecClient
 from notsolazy.storage import LocalBlobStore
@@ -66,6 +67,9 @@ def parser_for_cli() -> argparse.ArgumentParser:
             stage.add_argument(
                 "--refresh", action="store_true", help="Refresh cached submissions JSON"
             )
+    preview = commands.add_parser("preview", help="Export an explicit local company snapshot")
+    preview.add_argument("--tickers", required=True, help="Comma-separated preview tickers")
+    preview.add_argument("--output", type=Path, required=True, help="Local site data directory")
     review = commands.add_parser("review", help="Inspect or resolve a review flag")
     review_actions = review.add_subparsers(dest="action", required=True)
     review_actions.add_parser("list")
@@ -337,7 +341,7 @@ def main() -> None:
                         "section_item": settings.section_item,
                         "sec_identity_configured": bool(settings.sec_user_agent.strip()),
                         "summaries_enabled": settings.summaries_enabled,
-                        "milestone": 4,
+                        "milestone": 5,
                     },
                     indent=2,
                 )
@@ -357,7 +361,21 @@ def main() -> None:
         engine = make_engine(settings.database_url.get_secret_value())
         try:
             with Session(engine) as session:
-                if args.command == "review":
+                if args.command == "preview":
+                    print(
+                        json.dumps(
+                            export_preview(
+                                session,
+                                LocalBlobStore(settings.data_dir),
+                                section_rule(settings.section_item),
+                                args.tickers.split(","),
+                                args.output,
+                                threshold=settings.alignment_threshold,
+                            ),
+                            indent=2,
+                        )
+                    )
+                elif args.command == "review":
                     if args.action == "list":
                         rows = session.scalars(
                             select(ReviewEntry)

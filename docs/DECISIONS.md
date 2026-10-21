@@ -169,3 +169,49 @@ zero network attempts. Apple matched 27 risks and retained one removed risk;
 Microsoft matched 22 risks, with four added and one removed. These are algorithmic
 outputs, not a hand-labeled accuracy or economic-materiality claim. The 30-pair
 golden set, full S&P 500 validation and Brain correlation remain Milestone 6 work.
+
+## Milestone 5 — Company reading room (2026-10-21)
+
+- Preserve the editorial paper/ink design and static Next.js export. Generate
+  all selected `/c/[ticker]/` routes at build time. Read metadata at build time;
+  fetch only the selected company's same-origin diff JSON in the browser. No
+  user request calls EDGAR, the state database, the embedding model or an LLM.
+- Introduce an explicit offline `nsl preview --tickers ... --output ...` command.
+  It checks current source, segmentation, alignment and diff signatures/checksums
+  before copying. Review/first-filing/awaiting states contain no diff pointer or
+  stale counts. Previously owned stale preview artifacts are removed; unrelated
+  assets are preserved. Full R2/publish orchestration remains Milestone 8.
+- Commit a reproducible 20-issuer / 40-report local snapshot from SEC sources.
+  Nineteen comparisons pass current checks; GE Vernova retains its extraction
+  size-ratio flag. Do not override the flag just to fill a company page. This
+  is a prototype dataset, not the 30-pair golden set or measured S&P accuracy.
+- Use an accessible client search with names, tickers and share-class aliases,
+  arrow/Enter/Escape support and source-backed status links. GOOG and GOOGL
+  resolve to the same issuer, without duplicating its data.
+- Add prior/current report dates and SEC links, structural counts, filters by
+  group/type, changed-only (default), trivial-date highlighting, native collapsible
+  risk panels and preserved introductory/summary context. Stack columns on small
+  screens. Use visible +/− markers and underline/strikethrough as well as color.
+- Convert Python Unicode code-point offsets using Array.from rather than JS
+  UTF-16 slicing. Browser SHA-256 verifies each fetched diff; invalid/unavailable
+  payloads show a retry state. Unit tests cover non-BMP text, masks and bad offsets;
+  snapshot tests reconstruct every side of every real preview diff.
+- Keep scores and AI summary cards for their specified milestones. Do not invent
+  a percentile, economic interpretation or unverified quote. Update About and
+  Methodology to match the preview's actual capabilities and limitations.
+- Read Next.js's installed guides for static export, asynchronous route params
+  and client boundaries. Commit its generated web/AGENTS.md guidance. Use the
+  Sites skill's local workflow; do not register or deploy a separate hosted Site.
+
+Validation: 128 Python tests pass, including snapshot idempotency, stale/corrupt
+input exclusion, alias selection, first-filing and absent-pair states. Six frontend
+unit/snapshot tests, ESLint, TypeScript and the static export pass. Browser checks
+cover keyboard search, source links, filters, collapse/expand, review state and
+responsive columns (1280 desktop / 390 mobile, no horizontal overflow). All offline
+processing of the 20-issuer dataset completed with zero network attempts after
+SEC documents were cached through the shared rate-limited client. Precision/recall,
+full backfill, scores and Brain correlation remain Milestone 6 work.
+
+Search regression: normalize punctuation and whitespace so common names such as
+“Coca Cola” match the source name “Coca-Cola”, while share-class dots/hyphens
+and aliases still resolve correctly. Keep exact ticker results first.
