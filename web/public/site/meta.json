@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "status": "awaiting_backfill",
+  "last_updated": null,
+  "filing_count": 0,
+  "company_count": 0,
+  "pipeline_versions": {}
+}
