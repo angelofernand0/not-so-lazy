@@ -149,11 +149,11 @@ def test_cleaner_version_change_rebuilds_blocks_and_extraction(inputs, monkeypat
     first_key = first.blob_key
     section = processing.extract_filing(session, filing, store, RULE, cache_dir=tmp_path)
     first_signature = section.input_signature
-    monkeypatch.setattr(processing, "CLEANER_VERSION", "clean-test-v2")
+    monkeypatch.setattr(processing, "CLEANER_VERSION", "clean-test-next")
     changed = processing.clean_filing(session, filing, store)
     assert changed.blob_key != first_key and store.exists(first_key)
     result = processing.extract_filing(session, filing, store, RULE, cache_dir=tmp_path)
-    assert result.cleaner_version == "clean-test-v2"
+    assert result.cleaner_version == "clean-test-next"
     assert result.input_signature != first_signature
 
 

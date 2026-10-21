@@ -5,11 +5,12 @@ and investment clubs, grounded in SEC EDGAR source filings.
 
 ## Status
 
-Milestone 3: cached SEC ingestion plus offline HTML cleaning and dual-path Risk
-Factors extraction. Each extraction preserves both candidates, parser versions,
-source hashes and review flags. Real boundary regression tests cover 12 saved
-SEC documents. Comparisons, scores, summaries and deployment remain in later PRs;
-the frontend still shows an honest pre-backfill empty state.
+Milestone 4: offline Risk Factors segmentation, three-pass year-over-year alignment,
+and original-text span diffs on cached SEC extractions. Apple and Microsoft JSON
+demos have been generated with the pinned local embedding model. Source checksums,
+parser/matcher versions and review flags are preserved. Company pages, scores,
+summaries, full backfill and deployment remain in later PRs; the frontend still
+shows the pre-backfill empty state.
 
 ![Scaffold homepage preview](docs/scaffold-preview.png)
 
@@ -35,6 +36,10 @@ uv run nsl discover --ticker AAPL
 uv run nsl fetch --ticker AAPL
 uv run nsl clean --ticker AAPL
 uv run nsl extract --ticker AAPL
+uv run nsl model prepare  # one explicit model download from Hugging Face
+uv run nsl segment --ticker AAPL
+uv run nsl align --ticker AAPL
+uv run nsl diff --ticker AAPL
 uv run nsl review list
 ```
 
@@ -68,6 +73,14 @@ or LLM key is required for those stages. `extract` reads the versioned output of
 `clean`, so run them in order. Use `--force` to recompute; otherwise unchanged
 inputs reuse cached results. The JSON output includes local blob keys and SEC
 source URLs so candidate texts and quality flags can be inspected.
+
+The embedding model is pinned by commit and stored under `DATA_DIR/models/`.
+`model prepare` is the only model-download command. Segment, align and diff are
+offline and refuse missing/stale inputs or extraction flags. Alignment requires
+the prepared model only when unmatched factors reach the semantic pass. A diff
+command prints the versioned blob key; `data/diffs/{current_accession}.json` is
+the convenient latest copy. Repeat the same stages with `--ticker MSFT` for the
+second Milestone 4 demo. Re-run `clean` then `extract` when upgrading older caches.
 
 ## Layout
 

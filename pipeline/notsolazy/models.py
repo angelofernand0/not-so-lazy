@@ -130,3 +130,69 @@ def make_engine(database_url: str, **kwargs: Any) -> Engine:
 
         event.listen(engine, "connect", enable_foreign_keys)
     return engine
+
+
+class SegmentationRun(Base):
+    __tablename__ = "segmentation_runs"
+    accession: Mapped[str] = mapped_column(ForeignKey("filings.accession"), primary_key=True)
+    item: Mapped[str] = mapped_column(String(10), primary_key=True)
+    input_signature: Mapped[str] = mapped_column(String(64))
+    output_sha256: Mapped[str] = mapped_column(String(64))
+    factor_count: Mapped[int] = mapped_column(Integer)
+    segmenter_version: Mapped[str] = mapped_column(String(50))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class RiskFactor(Base):
+    __tablename__ = "risk_factors"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    accession: Mapped[str] = mapped_column(ForeignKey("filings.accession"), index=True)
+    item: Mapped[str] = mapped_column(String(10))
+    position: Mapped[int] = mapped_column(Integer)
+    group: Mapped[str] = mapped_column(Text)
+    heading: Mapped[str] = mapped_column(Text)
+    body: Mapped[str] = mapped_column(Text)
+    text: Mapped[str] = mapped_column(Text)
+    text_hash: Mapped[str] = mapped_column(String(64))
+    segmentation: Mapped[str] = mapped_column(String(20))
+    role: Mapped[str] = mapped_column(String(20))
+    start: Mapped[int] = mapped_column(Integer)
+    end: Mapped[int] = mapped_column(Integer)
+    segmenter_version: Mapped[str] = mapped_column(String(50))
+
+
+class AlignmentRun(Base):
+    __tablename__ = "alignment_runs"
+    pair_id: Mapped[str] = mapped_column(ForeignKey("filing_pairs.id"), primary_key=True)
+    item: Mapped[str] = mapped_column(String(10), primary_key=True)
+    input_signature: Mapped[str] = mapped_column(String(64))
+    output_sha256: Mapped[str] = mapped_column(String(64))
+    aligner_version: Mapped[str] = mapped_column(String(50))
+    model_id: Mapped[str] = mapped_column(String(200))
+    model_revision: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class Alignment(Base):
+    __tablename__ = "alignments"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    pair_id: Mapped[str] = mapped_column(ForeignKey("filing_pairs.id"), index=True)
+    item: Mapped[str] = mapped_column(String(10))
+    current_rf_id: Mapped[str | None] = mapped_column(ForeignKey("risk_factors.id"))
+    prior_rf_id: Mapped[str | None] = mapped_column(ForeignKey("risk_factors.id"))
+    method: Mapped[str] = mapped_column(String(40))
+    similarity: Mapped[float | None]
+    change_type: Mapped[str] = mapped_column(String(20))
+    moved: Mapped[bool] = mapped_column(Boolean)
+    aligner_version: Mapped[str] = mapped_column(String(50))
+
+
+class DiffRecord(Base):
+    __tablename__ = "diff_records"
+    pair_id: Mapped[str] = mapped_column(ForeignKey("filing_pairs.id"), primary_key=True)
+    item: Mapped[str] = mapped_column(String(10), primary_key=True)
+    input_signature: Mapped[str] = mapped_column(String(64))
+    blob_key: Mapped[str] = mapped_column(String(250))
+    sha256: Mapped[str] = mapped_column(String(64))
+    differ_version: Mapped[str] = mapped_column(String(50))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

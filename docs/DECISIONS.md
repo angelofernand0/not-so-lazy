@@ -124,3 +124,48 @@ source-derived numeric artifact list to primary output as well, including joined
 trailing footers. Keep reviewed anchors unchanged and bump extractor to v2 so
 existing cache entries are recomputed. A dedicated regression reproduces this
 renderer behavior without depending on the host platform.
+
+## Milestone 4 — Segment, align and diff (2026-10-21)
+
+- Preserve the selected extraction exactly. Match formatting from cleaned blocks,
+  never substitute fallback text for primary text. Store offsets, hashes, headings,
+  body, group, role and heading/paragraph segmentation in risk_factors.
+- Add cleaner v2 leading-heading evidence: real Microsoft paragraphs combine a
+  styled sentence with unstyled body, sometimes leaving the period unstyled too.
+  Keep smaller bold/italic subheadings inside their risk. Unformatted category
+  content falls back to paragraphs rather than disappearing as preamble.
+- Preserve introductions and summary lists as explicit context, excluded from the
+  three risk-matching passes. Categories are group metadata.
+- Match exact normalized headings, then reciprocal unique token-set fuzzy matches
+  >=85, then pinned MiniLM cosine/Hungarian >=0.80. Dummy unmatched assignments
+  prevent below-threshold edges from stealing valid matches. Disambiguate duplicate
+  headings with identical body text where possible. Splits/merges are not modeled;
+  they can appear as added/removed factors and remain a documented limitation.
+- Pin the public MiniLM model by commit. Explicit `nsl model prepare` downloads
+  safetensors/tokenizer/config files; regular commands use local CPU inference
+  with remote code disabled. Unit tests inject deterministic embeddings and never
+  download model weights. Use CPU PyTorch wheels on Linux to avoid CUDA packages.
+- Mask only explicit fiscal-year references to each filing's own report year and
+  `as of` phrases for its actual report date. Keep historical/bare years, unrelated
+  dates and financial numbers. Mask spans preserve the original text for a future
+  trivial-change toggle. This conservative rule may retain some harmless changes.
+- Sentence alignment uses pysbd and SequenceMatcher, then diff-match-patch over
+  word tokens with semantic cleanup. Every output range is a half-open Unicode
+  code-point offset into original text. Trivial equality is confined to the mask
+  itself. The JS renderer must account for UTF-16 when introduced in Milestone 5.
+- Use relative rank among matched risks for movement; insertion/removal shifts do
+  not make every later risk appear moved. Modified risks may also carry moved=true.
+- Add stage-owned runs, risk factors, alignments and diff artifact records with
+  Alembic. Cache signatures cover source/output hashes, versions, report dates,
+  model revision and configurable semantic threshold. Verify inputs and saved
+  outputs on reuse. Re-segmentation invalidates downstream alignments/diff pointers.
+- Store versioned JSON evidence plus `diffs/{current_accession}.json` as the latest
+  local copy. No company page, score, summary, publishing or deployment in this PR.
+
+Validation: 121 offline unit/integration/source tests pass, as do strict mypy,
+Ruff and Alembic schema/model comparison. Apple 2024/2025 and Microsoft 2025/2026 demos
+were generated with the real pinned MiniLM model and socket connections blocked:
+zero network attempts. Apple matched 27 risks and retained one removed risk;
+Microsoft matched 22 risks, with four added and one removed. These are algorithmic
+outputs, not a hand-labeled accuracy or economic-materiality claim. The 30-pair
+golden set, full S&P 500 validation and Brain correlation remain Milestone 6 work.

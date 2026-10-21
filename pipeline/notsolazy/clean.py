@@ -11,7 +11,7 @@ from typing import Any
 from lxml import html
 from pydantic import BaseModel
 
-CLEANER_VERSION = "clean-v1"
+CLEANER_VERSION = "clean-v2"
 BLOCK_TAGS = frozenset(
     {
         "p",
@@ -43,6 +43,7 @@ class Block(BaseModel):
     is_underlined: bool = False
     is_all_caps: bool = False
     is_list_item: bool = False
+    leading_heading: str = ""
     font_size: float | None = None
     source_index: int = 0
     page: int = 0
@@ -153,10 +154,26 @@ def clean_html(payload: bytes, *, removed_texts: set[str] | None = None) -> list
                     >= 0.8
                 )
 
+            prefix = ""
+            for value, fmt in runs:
+                if not normalize_text(value):
+                    prefix += value
+                    continue
+                if not (fmt.bold or fmt.italic):
+                    break
+                prefix += value
+            leading = normalize_text(prefix)
+            # A common SEC layout leaves the heading's final period in the
+            # following unstyled span. Keep that punctuation with the heading.
+            if leading and text.startswith(leading + ". "):
+                leading += "."
+            if leading == text or not re.search(r"[.!?]$", leading):
+                leading = ""
             letters = "".join(letter for letter in text if letter.isalpha())
             blocks.append(
                 Block(
                     text=text,
+                    leading_heading=leading,
                     tag=current_tag,
                     is_bold=feature("bold"),
                     is_italic=feature("italic"),

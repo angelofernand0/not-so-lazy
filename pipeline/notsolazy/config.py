@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     blob_backend: Literal["local", "r2"] = "local"
     data_dir: Path = Path("./data")
     section_item: str = "1A"
+    alignment_threshold: float = Field(default=0.80, ge=0, le=1)
     anthropic_api_key: SecretStr | None = None
     llm_model: str = ""
     r2_endpoint_url: str = ""
