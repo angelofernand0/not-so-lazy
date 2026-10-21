@@ -1,0 +1,39 @@
+# Methodology
+
+Status: design specification, not measured results. No real comparisons have
+been published in Milestone 1.
+
+Source: SEC EDGAR annual reports. Scope: current S&P 500, Item 1A Risk Factors,
+latest versus prior fiscal year. Identify issuers by CIK and retain share-class
+aliases. Pair by report date; flag transitions and missing annual periods.
+
+Planned extraction: edgartools plus a cleaned-block boundary fallback. Hold
+quality-check failures for review. Align by exact heading, fuzzy heading, then
+embedding similarity with Hungarian assignment. Preserve original text and
+character offsets; mask trivial fiscal-date rolls for scoring.
+
+Headline measure: 1 minus cosine similarity of term-frequency vectors, with
+standard English stop words removed. Also report Jaccard change, structural
+counts, and share of inserted current words. Percentiles use fiscal years ending
+in the same calendar year and are recalculated on publication. Position-only
+changes do not affect language scores.
+
+Optional AI summaries only receive changed factors. Verify quotes by normalized
+exact substring matching against their source factor, dropping failed quotes.
+No API key means the pipeline continues without summaries.
+
+Research context: Cohen, Malloy & Nguyen, “Lazy Prices,” Journal of Finance (2020),
+https://doi.org/10.1111/jofi.12885. This is context, never an investment signal.
+
+Validation pending: golden set (30 real pairs), full-backfill extraction accuracy,
+alignment precision/recall, and Spearman correlation against Brain BLMCF Risk
+Factors similarity. No accuracy or correlation claim is made until measured.
+
+Limits: formatting, split headings, amendments, fiscal-year changes, and imperfect
+factor segmentation can affect results. A high change score does not indicate
+whether a change is economically important.
+
+Planned cadence: daily ingest, weekly publish on Sundays. The site reads static
+published JSON; user requests never call EDGAR or an LLM.
+
+Not investment advice. Data from SEC EDGAR. Not affiliated with the SEC.
