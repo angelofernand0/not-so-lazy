@@ -33,3 +33,43 @@ Validation: 14 offline pytest tests passed; Ruff lint/format, strict mypy,
 ESLint, TypeScript, and the Webpack static export passed locally. Browser-checked
 the exported homepage and methodology navigation. No filing ingestion or
 production-data validation has been performed in this milestone.
+
+## Milestone 2 — SEC access and filing pairs (2026-10-20)
+
+- Use one httpx SEC entry point with a mandatory contact identity, an approved
+  HTTPS host allowlist, retry/backoff policy and blob caching. Do not follow
+  redirects with the contact header. Non-SEC Wikipedia requests omit the contact.
+- Use a SQLite-backed capacity-one token bucket shared at `DATA_DIR/.sec-rate.sqlite`.
+  This coordinates independent processes and threads on one host and prevents
+  bursts. Multi-host scheduling remains serial and requires workflow concurrency
+  controls in Milestone 8; independent rate-limit files are not a shared budget.
+- Cache submissions and ticker JSON for 24 hours, with explicit refresh. Raw
+  accession HTML never expires. Preserve original fetch metadata when rebuilding
+  database records from existing cache. Failed HTTP responses are never cached.
+- Commit the real 503-security/500-issuer snapshot and provenance/checksum.
+  Refuse refresh on any CIK mismatch; never rewrite source CIKs silently.
+  Normalize dot/hyphen symbols only for cross-checking and alias lookup.
+- Key companies on CIK and retain ticker aliases in a separate table. Universe
+  row versions include a content digest so snapshot changes can be traced.
+- Discover all SEC history shards rather than assuming the recent window includes
+  a prior annual period. Pair by report date, with transition/fiscal-year flags;
+  missing prior reports remain first_filing and cannot enter a future leaderboard.
+- Probe amendments only for the selected comparison periods. A substantial body
+  with recognizable boundaries qualifies; short/ambiguous mentions require review.
+  Store probe item/version and rerun when either changes. This is not the finished
+  extraction algorithm or a claim of extraction accuracy.
+- Implement `--since` as a current filing-date filter, not a history cutoff.
+  Reruns update records by primary key and mark stale selected pairs superseded.
+- Introduce an Alembic migration for companies, aliases, filings, pairs and review.
+  `init-db` now uses migrations rather than metadata.create_all, avoiding duplicate
+  table failures when later migrations are applied. SQLite enforces foreign keys.
+- Keep PR 2 stacked on the unmerged Milestone 1 branch. No production deployment,
+  full universe filing backfill, extraction, scores or summaries are claimed here.
+
+Validation: 42 offline tests pass, with network sockets blocked. Ruff, strict
+mypy and Alembic schema/model comparison pass. The live snapshot cross-check
+passed for all 503 tickers. Live AAPL discovery selected report dates 2025-09-27
+and 2024-09-28; both original HTML files were downloaded with checksums and sizes.
+A repeat fetch passed with socket connections blocked. Postgres migration and
+frontend checks run in the PR CI. Historical metadata flags remain on filing
+records; the review queue focuses on selected periods and recent malformed rows.

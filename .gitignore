@@ -18,6 +18,7 @@ out/
 /pipeline/data/*
 !/pipeline/data/README.md
 !/pipeline/data/sp500.csv
+!/pipeline/data/sp500.meta.json
 *.db
 *.db-shm
 *.db-wal
