@@ -159,8 +159,9 @@ model revision, threshold and report dates. A changed segmentation invalidates
 its pair's stored alignments and diff pointer. Downstream reads verify current
 upstream signatures/checksums; stale or corrupt records require rerunning the
 appropriate preceding stage. `--force` rebuilds its own stage. Extraction input
-failures remain gated even if a historical diff blob still exists. None of these
-local artifacts is published to the website yet.
+failures remain gated even if a historical diff blob still exists. The explicit
+preview export below copies validated local artifacts into the website snapshot;
+there is no automatic production publication workflow yet.
 
 ## Amendments and review
 
@@ -262,7 +263,8 @@ uv run nsl evaluate --manifest tests/golden/pilot.json \
 Milestones 1–5 and the 6a/6b evaluation/layout repairs are implemented. Remaining
 Milestone 6–7 work adds adjudicated validation, scores, full backfill and optional
 summaries. Milestone 8 enables
-schedules, R2, rebuilding and deployment. No ingest cron runs yet.
+schedules, R2 and automated rebuild/deployment. A hosted development preview
+already exists, but no ingest cron or production publication workflow runs yet.
 
 Additional sections will use item-specific boundary/segmentation configuration.
 The current amendment presence check only supports the MVP Risk Factors scope.
