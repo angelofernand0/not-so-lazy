@@ -155,3 +155,51 @@ def test_primary_footer_is_removed_using_source_artifacts_on_all_platforms(tmp_p
     assert result.selected.extractor == "edgartools"
     assert result.selected.text == fallback.text
     assert not result.flags
+
+
+def test_cross_reference_stops_at_peer_sales_chapter_and_rejects_primary_overrun(
+    tmp_path: Path,
+) -> None:
+    raw = (
+        "<p>Item 1A. Risk Factors</p><p>See the Risk Factors chapter.</p>"
+        "<p>Item 1B. Unresolved Staff Comments</p>"
+        '<div style="font-size:14pt">Risk Factors</div>'
+        f'<p style="font-size:9pt">{BODY}</p>'
+        '<div style="font-size:14pt">Sales and Marketing</div>'
+        "<p>Outside risk factors: customer sales and marketing programs.</p>"
+        '<div style="font-size:14pt">Cybersecurity</div>'
+    ).encode()
+    blocks = clean_html(raw)
+
+    def overrun(*args):
+        return Candidate(
+            "Risk Factors\n\n" + BODY + "\n\nSales and Marketing\n\n"
+            "Outside risk factors: customer sales and marketing programs.",
+            "edgartools",
+        )
+
+    result = extract_section(raw, blocks, RULE, primary=overrun, cache_dir=tmp_path)
+    assert result.selected.extractor == "fallback"
+    assert result.selected.boundary_method == "title_with_cross_reference"
+    assert result.selected.text.endswith(BODY.strip())
+    assert "Sales and Marketing" not in result.selected.text
+    assert not result.flags
+    assert result.candidates[0]["quality_flags"] == ["contains_following_section"]
+    assert "Outside risk factors" in result.candidates[0]["text"]
+    assert "primary_crossed_source_boundary" in result.warnings
+
+
+def test_smaller_sales_subheading_and_prose_are_not_chapter_boundaries() -> None:
+    raw = (
+        "<p>Item 1A. Risk Factors</p><p>See the Risk Factors chapter.</p>"
+        "<p>Item 1B. Unresolved Staff Comments</p>"
+        '<div style="font-size:18pt">Risk Factors</div>'
+        f'<p>{BODY}</p><div style="font-size:10pt">Sales and Marketing</div>'
+        "<p>Actual risk evidence concerning sales.</p>"
+        "<p>Sales and Marketing activities may expose us to risk.</p>"
+        '<div style="font-size:18pt">Other Key Information</div><p>Outside.</p>'
+    ).encode()
+    result = fallback_extract(clean_html(raw), RULE)
+    assert "Actual risk evidence concerning sales." in result.text
+    assert "Sales and Marketing activities may expose us to risk." in result.text
+    assert "Outside." not in result.text

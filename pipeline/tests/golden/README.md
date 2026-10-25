@@ -50,3 +50,8 @@ Next: independently review these labels and unresolved decisions, fix the errors
 they expose, then add 25 diverse pairs and reserve a held-out subset before tuning.
 Synthetic metric-accounting tests are explicitly labeled and are not validation
 evidence.
+
+The original `docs/evaluation-pilot.json` remains the pre-fix baseline. The
+`docs/evaluation-intel-fixed.json` follow-up uses the identical label hash and
+source hashes with extract-v3 / segment-v3. Do not replace the historical baseline
+when regenerating later runs; choose new report paths for each meaningful change.

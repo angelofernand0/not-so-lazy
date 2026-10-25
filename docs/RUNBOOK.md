@@ -231,10 +231,37 @@ Migration tests use disposable SQLite databases, never the operator's database.
 From `web/`: `npm ci`, `npm run dev`. Production: `npm run build` creates
 `web/out/`. Validate with `npm run lint`, `npm run typecheck` and `npm run test`.
 
+## Recompute after the Intel layout fixes
+
+Extraction and segmentation v3 invalidate older cached results. With the existing
+raw cache, database, cleaned blocks and pinned model present, run from `pipeline/`:
+
+```sh
+uv run nsl extract
+uv run nsl segment
+uv run nsl align
+uv run nsl diff
+```
+
+These commands are offline and operate only on discovered filing pairs already
+in the database. Cleaner v2 blocks remain valid; run `clean` first if they are
+absent. No `discover`/`fetch` or new model download is needed for this repair.
+Then run the explicit 20-ticker `preview` command above and rebuild the static
+site. Keep unresolved extraction reviews held; never clear GE Vernova's ratio
+flag to make the export complete. Preview will reject stale stage signatures.
+
+Reproduce the follow-up measurements without overwriting the historical baseline:
+
+```sh
+uv run nsl evaluate --manifest tests/golden/pilot.json \
+  --output ../docs/evaluation-intel-fixed.json --report ../docs/EVALUATION-INTEL-FIXED.md
+```
+
 ## Later milestones
 
-Milestones 1–5 are implemented. Milestones 6–7 add scores, full backfill,
-validation and optional summaries. Milestone 8 enables
+Milestones 1–5 and the 6a/6b evaluation/layout repairs are implemented. Remaining
+Milestone 6–7 work adds adjudicated validation, scores, full backfill and optional
+summaries. Milestone 8 enables
 schedules, R2, rebuilding and deployment. No ingest cron runs yet.
 
 Additional sections will use item-specific boundary/segmentation configuration.

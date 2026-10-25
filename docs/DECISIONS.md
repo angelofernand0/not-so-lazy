@@ -215,3 +215,31 @@ full backfill, scores and Brain correlation remain Milestone 6 work.
 Search regression: normalize punctuation and whitespace so common names such as
 “Coca Cola” match the source name “Coca-Cola”, while share-class dots/hyphens
 and aliases still resolve correctly. Keep exact ticker results first.
+
+## Milestone 6b — Intel layout repairs
+
+- Recognize repeated larger regular-weight sentence headings from the selected
+  section's font evidence. Require two long matched body paragraphs to establish
+  the prevailing body size, and two candidate headings of one larger size. Do not
+  promote list bullets or an isolated enlarged sentence. Keep the existing bold,
+  italic and inline-heading behavior and preserve offsets into selected text.
+- Add Sales and Marketing as a known peer chapter boundary only for bare chapter
+  titles backed by an item cross-reference and a matching source heading level.
+  Smaller subheads and prose mentions are not section ends.
+- When primary output contains a source-confirmed following bare chapter as a
+  standalone line, retain it with `contains_following_section` and record
+  `primary_crossed_source_boundary`. Prefer the bounded fallback instead of
+  silently trimming or discarding the primary evidence.
+- Bump extraction and segmentation to v3; leave cleaner v2 unchanged because
+  existing cached blocks already preserve font size. Upstream signatures prevent
+  stale extractions/comparisons from being exported until recomputed.
+- Keep the five-pair reference labels, source hashes and original baseline fixed.
+  The follow-up measures 10/10 matching section endpoints, 262 true risk starts
+  with no extra/missed starts, and no false continuity links. Five continuity
+  edges remain missing because matching remains one-to-one. Labels still need
+  independent human review; these checks do not establish S&P-wide accuracy.
+
+Real-source regressions require exactly 24 prior and 22 current Intel risks,
+complete bodies across paragraphs/page breaks, preserved preamble context and
+original offsets. The preview is rebuilt from cached SEC sources, with model
+weights and the database excluded from Git.

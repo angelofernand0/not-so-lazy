@@ -12,7 +12,7 @@ from pathlib import Path
 from notsolazy.clean import Block, clean_html, decode_html, normalize_text
 from notsolazy.config import SectionRule
 
-EXTRACTOR_VERSION = "extract-v2"
+EXTRACTOR_VERSION = "extract-v3"
 
 
 @dataclass
@@ -206,6 +206,22 @@ def extract_section(
         first = Candidate("", "edgartools", ["parser_error"])
         warnings.append(f"edgartools_error:{type(error).__name__}")
     fallback = fallback_extract(blocks, rule)
+    if (
+        first.text
+        and fallback.boundary_method == "title_with_cross_reference"
+        and fallback.end_block is not None
+        and fallback.end_block < len(blocks)
+    ):
+        end_block = blocks[fallback.end_block]
+        # A real peer chapter in the source is stronger boundary evidence than
+        # agreeing word counts. Keep the primary text for inspection, but do not
+        # prefer it when it includes that following chapter as a standalone line.
+        if any(_bare_title(end_block, title) for title in rule.bare_end_titles) and any(
+            normalize_text(line).casefold() == end_block.text.casefold()
+            for line in first.text.splitlines()
+        ):
+            first.flags.append("contains_following_section")
+            warnings.append("primary_crossed_source_boundary")
     candidates = [first, fallback]
     evaluated = [
         (candidate, quality_flags(candidate, rule, prior_words)) for candidate in candidates

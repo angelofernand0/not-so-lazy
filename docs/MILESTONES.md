@@ -11,7 +11,8 @@
 6. Validate, then score (separate reviewable changes):
    - 6a: five-pair source-reviewed evaluation pilot and error report. Independent
      human adjudication and expansion to 30 diverse pairs remain pending.
-   - 6b: fix measured extraction/segmentation errors; evaluate split/merge handling.
+   - 6b: fix measured Intel extraction/segmentation errors and rebuild the preview.
+     Split/merge handling remains a separate evaluation and implementation change.
    - 6c: scores and pilot leaderboard, then full backfill and season percentiles.
    - 6d: measured Brain correlation with aligned filing pairs/preprocessing.
      Disagreement is diagnostic, not proof of a parsing bug. No results may be invented.
