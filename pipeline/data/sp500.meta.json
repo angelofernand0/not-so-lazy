@@ -1,0 +1,9 @@
+{
+  "retrieved_at": "2026-10-21T04:57:53.774661+00:00",
+  "source": "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies",
+  "crosschecked_against": "https://www.sec.gov/files/company_tickers.json",
+  "security_count": 503,
+  "issuer_count": 500,
+  "sha256": "8e1ea1f1b8b916bcc8cf1cc944641d05740f4785a4ccb03aeeb391eaef6a4ecf",
+  "version": "universe-v1"
+}

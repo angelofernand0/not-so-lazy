@@ -1,0 +1,1 @@
+{"company_count":20,"comparison_count":19,"filing_count":40,"last_updated":"2026-10-25T04:02:04.559834+00:00","pipeline_versions":{"aligner":"align-v1","cleaner":"clean-v2","differ":"diff-v1","extractor":"extract-v3","preview":"preview-v1","segmenter":"segment-v3"},"schema_version":1,"status":"local_preview"}

@@ -5,14 +5,12 @@
 Python pipeline and a static Next.js reading interface.
 
 [Live development preview](https://not-so-lazy-seven.vercel.app/) ·
-[Documentation](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/README.md) · [Roadmap and review stack](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/PROJECT-STATUS.md) ·
-[Contributing](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/CONTRIBUTING.md)
+[Documentation](docs/README.md) · [Roadmap and review stack](docs/PROJECT-STATUS.md) ·
+[Contributing](CONTRIBUTING.md)
 
-> **Development status — October 25, 2026.** Implementation is in stacked,
-> unmerged milestone PRs. `main` is the project landing page; use
-> [`docs-comprehensive-overview`](https://github.com/angelofernand0/not-so-lazy/tree/docs-comprehensive-overview)
-> for the complete current source and documentation. The hosted preview may lag
-> this branch; it is not a continuously refreshed or validated full-universe release.
+> **Development status — October 25, 2026.** `main` contains the complete current
+> application, pipeline, evaluation evidence and documentation. The hosted site
+> is a development preview, not a continuously refreshed or validated full-universe release.
 
 ## What works today
 
@@ -37,7 +35,7 @@ Requires Git and Node.js 22 with npm. The committed website snapshot needs no
 Python, database, SEC identity, model download or API key.
 
 ```sh
-git clone --branch docs-comprehensive-overview https://github.com/angelofernand0/not-so-lazy.git
+git clone https://github.com/angelofernand0/not-so-lazy.git
 cd not-so-lazy/web
 npm ci
 npm run dev
@@ -83,7 +81,7 @@ uv run nsl preview --tickers AAPL --output ../web/public/site
 ```
 
 The last command replaces the exporter's managed snapshot with the explicit
-ticker selection. Use the [20-company command in the runbook](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/RUNBOOK.md#local-company-preview)
+ticker selection. Use the [20-company command in the runbook](docs/RUNBOOK.md#local-company-preview)
 to retain the development preview's coverage. Rebuild the website after exporting.
 
 `discover`/`fetch` use EDGAR; `model prepare` explicitly downloads a pinned MiniLM
@@ -96,7 +94,7 @@ The committed universe snapshot has 503 tickers for 500 issuers. Refresh it with
 `uv run nsl universe refresh`. Omitting `--ticker` processes the discovered
 universe, so start with an explicit ticker. Network workers must share `DATA_DIR`
 to share the rate limiter, capped at eight requests per second. See the
-[runbook](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/RUNBOOK.md) for cache recovery, amendments and stage invalidation.
+[runbook](docs/RUNBOOK.md) for cache recovery, amendments and stage invalidation.
 
 ## Measured quality and current limits
 
@@ -109,9 +107,9 @@ and two false removals remain, alongside two excluded, unresolved endpoints.
 These labels are agent-reviewed, used during development, and neither independently
 human-adjudicated nor held out. They do not establish exact factor-body boundaries,
 word-diff correctness, economic significance or population accuracy. Read the
-[full results](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/EVALUATION-INTEL-FIXED.md),
-[unchanged pre-fix baseline](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/EVALUATION-PILOT.md) and
-[next evaluation work](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/EVALUATION-NEXT.md).
+[full results](docs/EVALUATION-INTEL-FIXED.md),
+[unchanged pre-fix baseline](docs/EVALUATION-PILOT.md) and
+[next evaluation work](docs/EVALUATION-NEXT.md).
 
 Reproduce extraction/segmentation checks without a database or downloaded model:
 
@@ -137,8 +135,8 @@ SEC EDGAR → discover/pair → immutable raw HTML
 The browser reads same-origin precomputed JSON, verifies its hash and Unicode
 span coverage, and never calls EDGAR or an LLM. SQLAlchemy records stage metadata;
 local blobs retain source evidence and versioned outputs. Code/input/model
-signatures reject stale artifacts. See [architecture](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/ARCHITECTURE.md) and
-[methodology](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/METHODOLOGY.md) for contracts and limitations.
+signatures reject stale artifacts. See [architecture](docs/ARCHITECTURE.md) and
+[methodology](docs/METHODOLOGY.md) for contracts and limitations.
 
 ## Checks
 
@@ -154,7 +152,7 @@ uv run pytest
 From `web/`: `npm run lint`, `npm run typecheck`, `npm run test`, `npm run build`.
 The Intel repair passed 147 Python tests, six frontend tests, lint/type checks and
 the static build. [CI](https://github.com/angelofernand0/not-so-lazy/actions)
-also verifies Postgres migrations; see [verification evidence](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/INTEL-VALIDATION.md).
+also verifies Postgres migrations; see [verification evidence](docs/INTEL-VALIDATION.md).
 
 ## What to work on next
 
@@ -164,7 +162,7 @@ also verifies Postgres migrations; see [verification evidence](https://github.co
 4. Add optional quote-verified summaries, then automate publication and deployment.
 
 Acceptance criteria and the complete PR dependency chain are in
-[project status](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/PROJECT-STATUS.md). Start with the [documentation index](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/README.md)
+[project status](docs/PROJECT-STATUS.md). Start with the [documentation index](docs/README.md)
 for operations, design decisions, evaluation evidence and contributor guidance.
 
 Not investment advice. Data from SEC EDGAR. Not affiliated with the SEC.

@@ -1,0 +1,245 @@
+# Decisions
+
+## Milestone 1 — Scaffold (2026-10-20)
+
+- Preserve the brief’s Python 3.12 / uv and Next.js App Router / TypeScript /
+  Tailwind / static-export stack. No runtime API or browser-side EDGAR calls.
+- Start with an offline `nsl doctor` and `nsl init-db`. Validate SEC identity at
+  every future network entry point; development setup needs no contact or keys.
+- Keep `SECTION_ITEM` in config. Later stage APIs must accept item as a parameter.
+- SQLite and local atomic blob writes support local development. SQLAlchemy,
+  psycopg and Alembic provide the Postgres path. R2 is a later adapter to BlobStore.
+- No stage table or fake stage command is added before its implementation. Alembic
+  is wired to shared metadata; the first schema migration belongs to Milestone 2.
+- Add extraction, NLP, embeddings, R2 and Anthropic dependencies when their stages
+  arrive, rather than install large unused models in the scaffold.
+- Never fabricate filing comparisons, S&P 500 membership, quotes or validation
+  results. Publish explicit empty JSON and an honest pre-backfill UI for now.
+- Search is visibly unavailable until the real company index arrives in Milestone 5.
+- The frontend follows system light/dark preference, uses local system fonts,
+  and avoids font downloads at build time. Explicit theme control can arrive with
+  the company-page interaction work.
+- Deployment stays in Milestone 8 per the brief. No daily/weekly workflow is
+  scheduled before its stage commands exist; only CI runs now.
+- `docs/METHODOLOGY.md` remains the public methodology source. The initial page is
+  its concise scaffold counterpart; synchronize or automate rendering in Milestone 8.
+- Repository starts private where possible. No open-source license is selected
+  without a maintainer decision. Add owner/contact before launch.
+- Use the supported Webpack backend for local dev and production builds;
+  Turbopack’s CSS worker requires a local socket that this host denies.
+  The application and static-export architecture are unchanged.
+
+Validation: 14 offline pytest tests passed; Ruff lint/format, strict mypy,
+ESLint, TypeScript, and the Webpack static export passed locally. Browser-checked
+the exported homepage and methodology navigation. No filing ingestion or
+production-data validation has been performed in this milestone.
+
+## Milestone 2 — SEC access and filing pairs (2026-10-20)
+
+- Use one httpx SEC entry point with a mandatory contact identity, an approved
+  HTTPS host allowlist, retry/backoff policy and blob caching. Do not follow
+  redirects with the contact header. Non-SEC Wikipedia requests omit the contact.
+- Use a SQLite-backed capacity-one token bucket shared at `DATA_DIR/.sec-rate.sqlite`.
+  This coordinates independent processes and threads on one host and prevents
+  bursts. Multi-host scheduling remains serial and requires workflow concurrency
+  controls in Milestone 8; independent rate-limit files are not a shared budget.
+- Cache submissions and ticker JSON for 24 hours, with explicit refresh. Raw
+  accession HTML never expires. Preserve original fetch metadata when rebuilding
+  database records from existing cache. Failed HTTP responses are never cached.
+- Commit the real 503-security/500-issuer snapshot and provenance/checksum.
+  Refuse refresh on any CIK mismatch; never rewrite source CIKs silently.
+  Normalize dot/hyphen symbols only for cross-checking and alias lookup.
+- Key companies on CIK and retain ticker aliases in a separate table. Universe
+  row versions include a content digest so snapshot changes can be traced.
+- Discover all SEC history shards rather than assuming the recent window includes
+  a prior annual period. Pair by report date, with transition/fiscal-year flags;
+  missing prior reports remain first_filing and cannot enter a future leaderboard.
+- Probe amendments only for the selected comparison periods. A substantial body
+  with recognizable boundaries qualifies; short/ambiguous mentions require review.
+  Store probe item/version and rerun when either changes. This is not the finished
+  extraction algorithm or a claim of extraction accuracy.
+- Implement `--since` as a current filing-date filter, not a history cutoff.
+  Reruns update records by primary key and mark stale selected pairs superseded.
+- Introduce an Alembic migration for companies, aliases, filings, pairs and review.
+  `init-db` now uses migrations rather than metadata.create_all, avoiding duplicate
+  table failures when later migrations are applied. SQLite enforces foreign keys.
+- Keep PR 2 stacked on the unmerged Milestone 1 branch. No production deployment,
+  full universe filing backfill, extraction, scores or summaries are claimed here.
+
+Validation: 42 offline tests pass, with network sockets blocked. Ruff, strict
+mypy and Alembic schema/model comparison pass. The live snapshot cross-check
+passed for all 503 tickers. Live AAPL discovery selected report dates 2025-09-27
+and 2024-09-28; both original HTML files were downloaded with checksums and sizes.
+A repeat fetch passed with socket connections blocked. Postgres migration and
+frontend checks run in the PR CI. Historical metadata flags remain on filing
+records; the review queue focuses on selected periods and recent malformed rows.
+
+## Milestone 3 — Clean and extract (2026-10-21)
+
+- Add edgartools 5.62 with a locked dependency set. Use only its HTML parser on
+  cached source HTML, never Company/Filing network access. Its import-time cache
+  stays under the task data directory rather than the operator's home directory.
+- Emit visible, normalized blocks with formatting inherited from tags and inline
+  CSS. UTF-8 and declared legacy encodings are handled before parsing. Preserve
+  inline text and comments' visible tails; remove hidden XBRL/header content.
+- Keep large chapter titles when identical words recur in smaller running footers.
+  Restrict TOC-table removal to small navigation tables, retaining narrative layout
+  tables and inline source cross-references. Do not remove repeated prose sentences
+  merely because their numbers differ.
+- Keep item/title/end rules in config. The fallback supports adjacent split headings,
+  body text sharing an item-header block, and bare titles backed by an item mapping.
+  Same-level font checks avoid ending at smaller risk-category headings. This is
+  needed for real Honeywell and Intel annual-report cross-reference layouts.
+- Run primary and fallback on every new input signature. Prefer a passing candidate;
+  retain both full candidate texts, versions, counts and flags. Both-passing or
+  both-failing candidates with >10% count disagreement remain flagged for review.
+  Detect obvious sentence truncation found in real primary-parser output.
+- Add cleaned_filings and sections tables with an Alembic migration. Store full
+  block/candidate payloads in blob storage, with checksums and compact DB diagnostics.
+  Keep fallback block ranges; do not invent equivalent block offsets for primary
+  text that was rendered differently by edgartools.
+- Cache by all relevant source, code, rule, dependency and prior-count inputs.
+  Expose offline clean/extract CLI stages and explicit --force recomputation.
+  Review failures preserve evidence; repaired extractions close stale flags with
+  notes, and reproduced flags reopen without losing the prior note.
+- Replace the provisional amendment walker with the shared cleaner/boundaries,
+  bumping discover to v2. A real Tesla 10-K/A exposed a comment-node/style bug in
+  the earlier probe; the saved real amendment is now a regression fixture.
+- Commit 12 full, gzip-compressed SEC HTML sources with URLs and raw SHA-256 plus
+  manually selected start/end snippets. They cover Apple, Microsoft, Alphabet,
+  Honeywell, Intel, JPMorgan Chase, Realty Income, GE Vernova and Tesla, including
+  a Part-III amendment, first post-spin-off annual report and Item 1C boundaries.
+  This is not the future 30-pair golden set or a full-universe accuracy claim.
+
+Validation: 81 offline tests, including real-source boundary/encoding checks,
+cache invalidation, migrations, corrupt-input handling and review lifecycle.
+A smoke run cleaned/extracted 18 cached annual reports with zero network attempts:
+17 passed the automated checks; GE Vernova's current/prior size ratio requires
+review. Full S&P 500 extraction accuracy, alignment evaluation and Brain correlation
+remain pending. The frontend, deployment and schedules are unchanged.
+
+CI portability fix: the Linux edgartools renderer retained a numeric company
+footer in an otherwise complete Honeywell section. Apply the cleaner's
+source-derived numeric artifact list to primary output as well, including joined
+trailing footers. Keep reviewed anchors unchanged and bump extractor to v2 so
+existing cache entries are recomputed. A dedicated regression reproduces this
+renderer behavior without depending on the host platform.
+
+## Milestone 4 — Segment, align and diff (2026-10-21)
+
+- Preserve the selected extraction exactly. Match formatting from cleaned blocks,
+  never substitute fallback text for primary text. Store offsets, hashes, headings,
+  body, group, role and heading/paragraph segmentation in risk_factors.
+- Add cleaner v2 leading-heading evidence: real Microsoft paragraphs combine a
+  styled sentence with unstyled body, sometimes leaving the period unstyled too.
+  Keep smaller bold/italic subheadings inside their risk. Unformatted category
+  content falls back to paragraphs rather than disappearing as preamble.
+- Preserve introductions and summary lists as explicit context, excluded from the
+  three risk-matching passes. Categories are group metadata.
+- Match exact normalized headings, then reciprocal unique token-set fuzzy matches
+  >=85, then pinned MiniLM cosine/Hungarian >=0.80. Dummy unmatched assignments
+  prevent below-threshold edges from stealing valid matches. Disambiguate duplicate
+  headings with identical body text where possible. Splits/merges are not modeled;
+  they can appear as added/removed factors and remain a documented limitation.
+- Pin the public MiniLM model by commit. Explicit `nsl model prepare` downloads
+  safetensors/tokenizer/config files; regular commands use local CPU inference
+  with remote code disabled. Unit tests inject deterministic embeddings and never
+  download model weights. Use CPU PyTorch wheels on Linux to avoid CUDA packages.
+- Mask only explicit fiscal-year references to each filing's own report year and
+  `as of` phrases for its actual report date. Keep historical/bare years, unrelated
+  dates and financial numbers. Mask spans preserve the original text for a future
+  trivial-change toggle. This conservative rule may retain some harmless changes.
+- Sentence alignment uses pysbd and SequenceMatcher, then diff-match-patch over
+  word tokens with semantic cleanup. Every output range is a half-open Unicode
+  code-point offset into original text. Trivial equality is confined to the mask
+  itself. The JS renderer must account for UTF-16 when introduced in Milestone 5.
+- Use relative rank among matched risks for movement; insertion/removal shifts do
+  not make every later risk appear moved. Modified risks may also carry moved=true.
+- Add stage-owned runs, risk factors, alignments and diff artifact records with
+  Alembic. Cache signatures cover source/output hashes, versions, report dates,
+  model revision and configurable semantic threshold. Verify inputs and saved
+  outputs on reuse. Re-segmentation invalidates downstream alignments/diff pointers.
+- Store versioned JSON evidence plus `diffs/{current_accession}.json` as the latest
+  local copy. No company page, score, summary, publishing or deployment in this PR.
+
+Validation: 121 offline unit/integration/source tests pass, as do strict mypy,
+Ruff and Alembic schema/model comparison. Apple 2024/2025 and Microsoft 2025/2026 demos
+were generated with the real pinned MiniLM model and socket connections blocked:
+zero network attempts. Apple matched 27 risks and retained one removed risk;
+Microsoft matched 22 risks, with four added and one removed. These are algorithmic
+outputs, not a hand-labeled accuracy or economic-materiality claim. The 30-pair
+golden set, full S&P 500 validation and Brain correlation remain Milestone 6 work.
+
+## Milestone 5 — Company reading room (2026-10-21)
+
+- Preserve the editorial paper/ink design and static Next.js export. Generate
+  all selected `/c/[ticker]/` routes at build time. Read metadata at build time;
+  fetch only the selected company's same-origin diff JSON in the browser. No
+  user request calls EDGAR, the state database, the embedding model or an LLM.
+- Introduce an explicit offline `nsl preview --tickers ... --output ...` command.
+  It checks current source, segmentation, alignment and diff signatures/checksums
+  before copying. Review/first-filing/awaiting states contain no diff pointer or
+  stale counts. Previously owned stale preview artifacts are removed; unrelated
+  assets are preserved. Full R2/publish orchestration remains Milestone 8.
+- Commit a reproducible 20-issuer / 40-report local snapshot from SEC sources.
+  Nineteen comparisons pass current checks; GE Vernova retains its extraction
+  size-ratio flag. Do not override the flag just to fill a company page. This
+  is a prototype dataset, not the 30-pair golden set or measured S&P accuracy.
+- Use an accessible client search with names, tickers and share-class aliases,
+  arrow/Enter/Escape support and source-backed status links. GOOG and GOOGL
+  resolve to the same issuer, without duplicating its data.
+- Add prior/current report dates and SEC links, structural counts, filters by
+  group/type, changed-only (default), trivial-date highlighting, native collapsible
+  risk panels and preserved introductory/summary context. Stack columns on small
+  screens. Use visible +/− markers and underline/strikethrough as well as color.
+- Convert Python Unicode code-point offsets using Array.from rather than JS
+  UTF-16 slicing. Browser SHA-256 verifies each fetched diff; invalid/unavailable
+  payloads show a retry state. Unit tests cover non-BMP text, masks and bad offsets;
+  snapshot tests reconstruct every side of every real preview diff.
+- Keep scores and AI summary cards for their specified milestones. Do not invent
+  a percentile, economic interpretation or unverified quote. Update About and
+  Methodology to match the preview's actual capabilities and limitations.
+- Read Next.js's installed guides for static export, asynchronous route params
+  and client boundaries. Commit its generated web/AGENTS.md guidance. Use the
+  Sites skill's local workflow; do not register or deploy a separate hosted Site.
+
+Validation: 128 Python tests pass, including snapshot idempotency, stale/corrupt
+input exclusion, alias selection, first-filing and absent-pair states. Six frontend
+unit/snapshot tests, ESLint, TypeScript and the static export pass. Browser checks
+cover keyboard search, source links, filters, collapse/expand, review state and
+responsive columns (1280 desktop / 390 mobile, no horizontal overflow). All offline
+processing of the 20-issuer dataset completed with zero network attempts after
+SEC documents were cached through the shared rate-limited client. Precision/recall,
+full backfill, scores and Brain correlation remain Milestone 6 work.
+
+Search regression: normalize punctuation and whitespace so common names such as
+“Coca Cola” match the source name “Coca-Cola”, while share-class dots/hyphens
+and aliases still resolve correctly. Keep exact ticker results first.
+
+## Milestone 6b — Intel layout repairs
+
+- Recognize repeated larger regular-weight sentence headings from the selected
+  section's font evidence. Require two long matched body paragraphs to establish
+  the prevailing body size, and two candidate headings of one larger size. Do not
+  promote list bullets or an isolated enlarged sentence. Keep the existing bold,
+  italic and inline-heading behavior and preserve offsets into selected text.
+- Add Sales and Marketing as a known peer chapter boundary only for bare chapter
+  titles backed by an item cross-reference and a matching source heading level.
+  Smaller subheads and prose mentions are not section ends.
+- When primary output contains a source-confirmed following bare chapter as a
+  standalone line, retain it with `contains_following_section` and record
+  `primary_crossed_source_boundary`. Prefer the bounded fallback instead of
+  silently trimming or discarding the primary evidence.
+- Bump extraction and segmentation to v3; leave cleaner v2 unchanged because
+  existing cached blocks already preserve font size. Upstream signatures prevent
+  stale extractions/comparisons from being exported until recomputed.
+- Keep the five-pair reference labels, source hashes and original baseline fixed.
+  The follow-up measures 10/10 matching section endpoints, 262 true risk starts
+  with no extra/missed starts, and no false continuity links. Five continuity
+  edges remain missing because matching remains one-to-one. Labels still need
+  independent human review; these checks do not establish S&P-wide accuracy.
+
+Real-source regressions require exactly 24 prior and 22 current Intel risks,
+complete bodies across paragraphs/page breaks, preserved preamble context and
+original offsets. The preview is rebuilt from cached SEC sources, with model
+weights and the database excluded from Git.

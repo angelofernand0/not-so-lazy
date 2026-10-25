@@ -1,16 +1,14 @@
 # Contributing
 
-Start with the [README](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/README.md), [review stack](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/PROJECT-STATUS.md) and
-[runbook](https://github.com/angelofernand0/not-so-lazy/blob/docs-comprehensive-overview/docs/RUNBOOK.md). Complete source currently lives on
-`docs-comprehensive-overview`; `main` is a landing page while milestone PRs are reviewed.
+Start with the [README](README.md), [review stack](docs/PROJECT-STATUS.md) and
+[runbook](docs/RUNBOOK.md). Complete source lives on `main`; start new work from the latest main commit.
 
 ## Pick a focused change
 
 The next parser priority is split/merge matching, followed by independent label
 review and a broader benchmark. Keep parsing, evaluation, scoring and presentation
-changes independently reviewable. State the starting branch/commit and target
-the appropriate stack predecessor rather than accidentally including the entire
-implementation in a new PR against `main`.
+changes independently reviewable. State the starting commit and open focused
+PRs against `main`. The milestone branches are preserved as implementation history.
 
 ## Report a reproducible problem
 
