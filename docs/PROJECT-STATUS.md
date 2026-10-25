@@ -25,7 +25,8 @@ against `main`.
    `milestone-6-evaluation` → `milestone-5-company-pages`; frozen labels and measured baseline.
 7. [PR #7 — Intel repair](https://github.com/angelofernand0/not-so-lazy/pull/7):
    `milestone-6b-intel` → `milestone-6-evaluation`; boundaries, segmentation and refreshed JSON.
-8. Comprehensive documentation: `docs-comprehensive-overview` → `milestone-6b-intel`;
+8. [PR #8 — Comprehensive documentation](https://github.com/angelofernand0/not-so-lazy/pull/8):
+   `docs-comprehensive-overview` → `milestone-6b-intel`;
    quickstart, architecture, evidence, review map and contribution templates.
 
 The latest code verification is in [Intel validation](INTEL-VALIDATION.md):
@@ -87,3 +88,20 @@ Add optional cached summaries with exact source-quote verification and clear
 failure behavior. Then implement shared-concurrency ingest, immutable publication,
 rebuild triggers, observability and rollback. A working hosted preview does not
 complete these production pipeline requirements.
+
+## Deployment integration to reconcile
+
+Vercel's existing Git integration builds implementation-branch previews; the
+documentation PR preview reported Ready. It also attempted the documentation-only
+`main` commit [8580161](https://github.com/angelofernand0/not-so-lazy/commit/8580161be9da23ba278a30be3663409d14fa850e),
+which [failed deployment](https://vercel.com/af6636-4645/not-so-lazy/Fcss3j4BrJ8z1BTF8r5HB9XdXvGy).
+The existing public preview remained reachable after that attempt.
+
+`main` has no application directory until the milestone stack is integrated,
+which is a likely cause; build logs were unavailable through the connected
+Vercel account, so the precise failure has not been confirmed. Reconcile the
+deployment branch/build configuration when integrating the implementation.
+The new landing files also overlap files introduced by PR #1; preserve the
+comprehensive docs when resolving that merge and remove the temporary branch
+banner once the stack lands. No deployment setting or production alias was
+changed as part of the documentation update.
