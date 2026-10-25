@@ -12,6 +12,11 @@ The UI supports group/type filters, changed-only, collapsible risks, original SE
 links and a trivial-date toggle. Scores, summaries, full-universe validation and
 production deployment remain later milestones.
 
+Milestone 6a adds an offline [five-pair evaluation pilot](pipeline/tests/golden/README.md)
+and a [measured error report](docs/EVALUATION-PILOT.md). Its labels are agent-reviewed;
+independent human adjudication and the full 30-pair evaluation remain pending.
+See [the next fixes](docs/EVALUATION-NEXT.md) before expanding the leaderboard.
+
 ![Scaffold homepage preview](docs/scaffold-preview.png)
 
 ## Run locally

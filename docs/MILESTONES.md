@@ -8,8 +8,13 @@
 4. Segment/align/diff: three-pass alignment and original-offset masked spans;
    real AAPL/MSFT JSON comparison demos.
 5. Company frontend: search, company view and diff interactions for 20 tickers.
-6. Score/leaderboard: full backfill, percentiles, golden evaluation and measured
-   Brain correlation. No validation results may be invented.
+6. Validate, then score (separate reviewable changes):
+   - 6a: five-pair source-reviewed evaluation pilot and error report. Independent
+     human adjudication and expansion to 30 diverse pairs remain pending.
+   - 6b: fix measured extraction/segmentation errors; evaluate split/merge handling.
+   - 6c: scores and pilot leaderboard, then full backfill and season percentiles.
+   - 6d: measured Brain correlation with aligned filing pairs/preprocessing.
+     Disagreement is diagnostic, not proof of a parsing bug. No results may be invented.
 7. Summaries: provider interface, optional Anthropic, verified quotes and cache,
    source-linked summary cards and pitch-deck copy.
 8. Ship: daily/weekly Actions, R2 publication, rebuild trigger, deploy, public
