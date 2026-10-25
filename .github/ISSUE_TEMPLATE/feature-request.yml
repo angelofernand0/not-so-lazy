@@ -1,0 +1,22 @@
+name: Feature or workflow improvement
+description: Propose an improvement to the pipeline or reading interface.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or user workflow
+      description: Who is affected and what is difficult today?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired behavior
+      description: Describe a concrete example and observable acceptance criteria.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context and alternatives
+      description: Relevant roadmap milestone, source evidence or simpler alternatives. Omit credentials and personal data.

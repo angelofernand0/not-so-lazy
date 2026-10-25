@@ -1,30 +1,56 @@
 # Not So Lazy
 
-**See what changed in every 10-K.** A free Risk Factors change tracker for students
-and investment clubs, grounded in SEC EDGAR source filings.
+**Read what changed in a company's annual Risk Factors.** A source-linked SEC
+10-K comparison tool for students and investment clubs, with a reproducible
+Python pipeline and a static Next.js reading interface.
 
-## Status
+[Live development preview](https://not-so-lazy-seven.vercel.app/) ·
+[Documentation](docs/README.md) · [Roadmap and review stack](docs/PROJECT-STATUS.md) ·
+[Contributing](CONTRIBUTING.md)
 
-Milestone 5: searchable company pages and side-by-side Risk Factors diffs from
-real local JSON. The committed preview covers 20 companies / 40 annual filings:
-19 comparisons pass the current automated checks; GE Vernova is held for review.
-The UI supports group/type filters, changed-only, collapsible risks, original SEC
-links and a trivial-date toggle. Scores, summaries, full-universe validation and
-production deployment remain later milestones.
+> **Development status — October 25, 2026.** Implementation is in stacked,
+> unmerged milestone PRs. `main` is the project landing page; use
+> [`docs-comprehensive-overview`](https://github.com/angelofernand0/not-so-lazy/tree/docs-comprehensive-overview)
+> for the complete current source and documentation. The hosted preview may lag
+> this branch; it is not a continuously refreshed or validated full-universe release.
 
-Milestone 6a adds an offline [five-pair evaluation pilot](pipeline/tests/golden/README.md)
-and a [measured error report](docs/EVALUATION-PILOT.md). Its labels are agent-reviewed;
-independent human adjudication and the full 30-pair evaluation remain pending.
-Milestone 6b fixes Intel's paragraph fragmentation and section overrun; see the
-[new measured run](docs/EVALUATION-INTEL-FIXED.md) and
-[remaining work](docs/EVALUATION-NEXT.md) before expanding the leaderboard.
+## What works today
 
-![Scaffold homepage preview](docs/scaffold-preview.png)
+- Search 20 companies and inspect 40 annual filings: 19 comparisons are ready;
+  GE Vernova is held for extraction review with original source links.
+- Read side-by-side risk factors with sentence/word changes, added/removed labels,
+  group and change filters, changed-only mode, expand/collapse and date-roll visibility.
+- Discover annual filing pairs by CIK and report date, cache original SEC HTML,
+  clean/extract Item 1A, segment factors, align them and export verified diff JSON.
+- Reproduce an offline five-pair evaluation with frozen source hashes and labels.
+  Intel's layout repair is covered by real-source regressions.
 
-## Run locally
+Scores, rankings, AI summaries, split/merge matching, scheduled publication and
+full S&P 500 validation are **not implemented**. Automated matching labels describe
+text correspondence; splits and merges can still look like additions/removals.
 
-Requires Git, [uv](https://docs.astral.sh/uv/getting-started/installation/), and
-Node.js 22 with npm. uv installs Python 3.12 as needed.
+![Intel comparison showing source links, filters and the corrected risk-factor inventory](docs/company-comparison.png)
+
+## Try the website locally
+
+Requires Git and Node.js 22 with npm. The committed website snapshot needs no
+Python, database, SEC identity, model download or API key.
+
+```sh
+git clone --branch docs-comprehensive-overview https://github.com/angelofernand0/not-so-lazy.git
+cd not-so-lazy/web
+npm ci
+npm run dev
+```
+
+Open [localhost:3000](http://localhost:3000). Try `/c/AAPL/`, `/c/MSFT/`,
+`/c/INTC/` and `/c/GEV/` (review state). `npm run build` creates `web/out/`;
+the exported pages and JSON can be served by a static host without a Next.js server.
+
+## Run the parsing pipeline
+
+Also requires [uv](https://docs.astral.sh/uv/getting-started/installation/), which
+can provision Python 3.12. From the repository root:
 
 ```sh
 cp .env.example .env
@@ -32,10 +58,15 @@ cd pipeline
 uv sync --locked
 uv run nsl doctor
 uv run nsl init-db
-uv run alembic upgrade head
 ```
 
-After setting your real SEC contact in `.env`, from `pipeline/`:
+`init-db` applies Alembic migrations. SQLite and local blobs are the development
+defaults; CI also checks migrations against Postgres 17. Commands below run from
+`pipeline/`, where relative data paths and the root `.env` resolve correctly.
+
+Before EDGAR access, set `SEC_USER_AGENT` in the root `.env` to
+`NotSoLazy/0.1 your-real-contact@example.com`, replacing the example contact.
+Keep the real contact and credentials out of Git. Then process one company:
 
 ```sh
 uv run nsl doctor --require-sec
@@ -43,96 +74,97 @@ uv run nsl discover --ticker AAPL
 uv run nsl fetch --ticker AAPL
 uv run nsl clean --ticker AAPL
 uv run nsl extract --ticker AAPL
-uv run nsl model prepare  # one explicit model download from Hugging Face
+uv run nsl model prepare
 uv run nsl segment --ticker AAPL
 uv run nsl align --ticker AAPL
 uv run nsl diff --ticker AAPL
 uv run nsl review list
+uv run nsl preview --tickers AAPL --output ../web/public/site
 ```
 
-The committed snapshot contains 503 tickers for 500 issuers, cross-checked against
-SEC CIKs. `uv run nsl universe refresh` rebuilds it and refuses mismatches.
-Omit `--ticker` to process the universe. `--since YYYY-MM-DD` selects pairs by
-current filing date; it does not remove the older history needed for pairing.
-Use `discover --refresh` to bypass the 24-hour submissions cache. Raw documents
-are immutable in the cache and are never refetched by `fetch`.
+The last command replaces the exporter's managed snapshot with the explicit
+ticker selection. Use the [20-company command in the runbook](docs/RUNBOOK.md#local-company-preview)
+to retain the development preview's coverage. Rebuild the website after exporting.
 
-In another terminal, from the repository root:
+`discover`/`fetch` use EDGAR; `model prepare` explicitly downloads a pinned MiniLM
+model from Hugging Face. Cleaning, extraction, segmentation, alignment, diffs
+and preview export then run offline. Missing inputs fail visibly rather than
+triggering hidden downloads. Quality flags block comparison/export; resolving a
+review note does not bypass those checks.
+
+The committed universe snapshot has 503 tickers for 500 issuers. Refresh it with
+`uv run nsl universe refresh`. Omitting `--ticker` processes the discovered
+universe, so start with an explicit ticker. Network workers must share `DATA_DIR`
+to share the rate limiter, capped at eight requests per second. See the
+[runbook](docs/RUNBOOK.md) for cache recovery, amendments and stage invalidation.
+
+## Measured quality and current limits
+
+The five-pair development pilot covers AAPL, MSFT, HON, INTC and O: ten filings
+and 262 reference risk starts. With extraction/segmentation v3, measured results
+are 10/10 passing section-boundary checks, 262 correct / 0 extra / 0 missed risk
+starts, and 123 correct / 0 false / 5 missed continuity edges. Four false additions
+and two false removals remain, alongside two excluded, unresolved endpoints.
+
+These labels are agent-reviewed, used during development, and neither independently
+human-adjudicated nor held out. They do not establish exact factor-body boundaries,
+word-diff correctness, economic significance or population accuracy. Read the
+[full results](docs/EVALUATION-INTEL-FIXED.md),
+[unchanged pre-fix baseline](docs/EVALUATION-PILOT.md) and
+[next evaluation work](docs/EVALUATION-NEXT.md).
+
+Reproduce extraction/segmentation checks without a database or downloaded model:
 
 ```sh
-cd web
-npm ci
-npm run dev
+# From pipeline/; write new output rather than overwrite the historical reports.
+uv run nsl evaluate --manifest tests/golden/pilot.json \
+  --extraction-only --output data/evaluation-extraction.json
 ```
 
-Open http://localhost:3000. Frontend data lives in `web/public/site/`; no keys
-or backend are needed to preview. Keys must never use a `NEXT_PUBLIC_` prefix.
+For continuity metrics, first run `uv run nsl model prepare`, then omit
+`--extraction-only`; optionally add `--report data/evaluation.md`. Known remaining
+errors mean the full pilot is not yet a zero-error acceptance gate.
 
-Before any EDGAR request, set `SEC_USER_AGENT` in `.env` to
-`NotSoLazy/0.1 your-real-contact@example.com`, then run
-`uv run nsl doctor --require-sec` from `pipeline/`. Network stages refuse
-missing identity, share a <=8 req/s throttle, and cache raw documents. Keep your
-contact in `.env` or GitHub Actions secrets; never commit it. All concurrent
-workers must share `DATA_DIR` so they share the rate-limit SQLite file.
+## Architecture
 
-Cleaning and extraction run entirely offline from cached HTML; no SEC identity
-or LLM key is required for those stages. `extract` reads the versioned output of
-`clean`, so run them in order. Use `--force` to recompute; otherwise unchanged
-inputs reuse cached results. The JSON output includes local blob keys and SEC
-source URLs so candidate texts and quality flags can be inspected.
-
-To rebuild the committed local site snapshot, after the preceding stages, run:
-
-```sh
-uv run nsl preview --tickers AAPL,MSFT,GOOG,HON,INTC,JPM,O,GEV,TSLA,AMZN,NVDA,META,WMT,COST,V,DIS,JNJ,PG,HD,KO --output ../web/public/site
+```text
+SEC EDGAR → discover/pair → immutable raw HTML
+  → cleaned blocks → Item 1A + quality review → risk factors
+  → exact/fuzzy/local embedding alignment → sentence/word diff
+  → verified static JSON → Next.js export → browser
 ```
 
-The website already includes this preview data. Cloning it and running the web
-commands needs no database, SEC contact, model download or API key. Company
-pages load only their own same-origin diff JSON. Try `/c/AAPL/`, `/c/MSFT/` or
-`/c/GEV/` (review state). This is a development dataset, not a full S&P 500 release.
+The browser reads same-origin precomputed JSON, verifies its hash and Unicode
+span coverage, and never calls EDGAR or an LLM. SQLAlchemy records stage metadata;
+local blobs retain source evidence and versioned outputs. Code/input/model
+signatures reject stale artifacts. See [architecture](docs/ARCHITECTURE.md) and
+[methodology](docs/METHODOLOGY.md) for contracts and limitations.
 
-The embedding model is pinned by commit and stored under `DATA_DIR/models/`.
-`model prepare` is the only model-download command. Segment, align and diff are
-offline and refuse missing/stale inputs or extraction flags. Alignment requires
-the prepared model only when unmatched factors reach the semantic pass. A diff
-command prints the versioned blob key; `data/diffs/{current_accession}.json` is
-the convenient latest copy. Repeat the same stages with `--ticker MSFT` for the
-second Milestone 4 demo. Re-run `clean` then `extract` when upgrading older caches.
+## Checks
 
-## Layout
-
-- `pipeline/notsolazy/`: SEC ingestion, HTML blocks, extraction, persistence, CLI and storage.
-- `pipeline/migrations/`: versioned schema for companies, filings, cleaned blocks, sections and review.
-- `pipeline/tests/`: offline tests, fixture and golden-set directories.
-- `web/`: Next.js App Router, TypeScript, Tailwind and static export.
-- `docs/`: decisions, methodology, operations and milestone plan.
-- `.github/workflows/ci.yml`: offline Python tests, frontend build and Postgres migrations.
-
-## Validate
+From `pipeline/`:
 
 ```sh
-cd pipeline
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy notsolazy
 uv run pytest
 ```
 
-From `web/` run `npm run lint`, `npm run typecheck`, `npm run test`, and `npm run build`.
+From `web/`: `npm run lint`, `npm run typecheck`, `npm run test`, `npm run build`.
+The Intel repair passed 147 Python tests, six frontend tests, lint/type checks and
+the static build. [CI](https://github.com/angelofernand0/not-so-lazy/actions)
+also verifies Postgres migrations; see [verification evidence](docs/INTEL-VALIDATION.md).
 
-## Deployment plan
+## What to work on next
 
-`npm run build` in `web/` writes `web/out/`. Vercel: set root directory `web`,
-build command `npm run build`, output `out`. Cloudflare Pages: root `web`, build
-`npm run build`, output `out`. No Next.js server, API routes or runtime secrets.
-Publish precomputed JSON before rebuilding. R2 publishing, rebuild hooks, cron
-and production deployment are Milestone 8 and are not configured yet.
+1. Add bounded split/merge matching and rerun the frozen pilot, preserving ambiguous cases.
+2. Independently adjudicate labels, expand to 30 diverse pairs and reserve a held-out subset.
+3. Implement and validate change scores before a pilot leaderboard or full backfill.
+4. Add optional quote-verified summaries, then automate publication and deployment.
 
-Production state will use Postgres (Neon or Supabase) behind SQLAlchemy and R2
-behind the blob interface. Summaries remain optional and provider-agnostic.
-
-See [decisions](docs/DECISIONS.md), [runbook](docs/RUNBOOK.md),
-[methodology](docs/METHODOLOGY.md), and [milestones](docs/MILESTONES.md).
+Acceptance criteria and the complete PR dependency chain are in
+[project status](docs/PROJECT-STATUS.md). Start with the [documentation index](docs/README.md)
+for operations, design decisions, evaluation evidence and contributor guidance.
 
 Not investment advice. Data from SEC EDGAR. Not affiliated with the SEC.

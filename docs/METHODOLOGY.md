@@ -1,6 +1,7 @@
 # Methodology
 
-Status: ingestion, cleaning and extraction are implemented with segmentation, alignment and diff through Milestone 4.
+Status: ingestion, cleaning, extraction, segmentation, alignment, diff and the
+static company reader are implemented, with a development evaluation pilot.
 The local website preview contains 20 issuers / 40 reports, with 19 comparisons
 and one extraction held for review. Scores and summaries are not available.
 Full-universe validation has not been performed.
@@ -31,17 +32,19 @@ pinned MiniLM embedding cosine similarity with one-to-one Hungarian assignment
 Sentence and word diff operations retain offsets into original text on both sides.
 Explicit fiscal-year/report-date rolls are masked, with their original spans
 retained; historical years and unrelated numbers stay visible. Apple and Microsoft
-pairs have generated offline demo artifacts. This is not a measured alignment
-precision/recall result. Splits and merges can appear as additions/removals because
+pairs have generated offline demo artifacts. Pilot alignment measurements are
+linked below; there is no independently adjudicated population benchmark.
+Splits and merges can appear as additions/removals because
 matching is one-to-one; paragraph fallback can also produce coarser units.
 
-Headline measure: 1 minus cosine similarity of term-frequency vectors, with
+Planned scores (not implemented): 1 minus cosine similarity of term-frequency vectors, with
 standard English stop words removed. Also report Jaccard change, structural
 counts, and share of inserted current words. Percentiles use fiscal years ending
 in the same calendar year and are recalculated on publication. Position-only
 changes do not affect language scores.
 
-Optional AI summaries only receive changed factors. Verify quotes by normalized
+Planned summaries (not implemented): optional AI summaries receive only changed factors.
+Verify quotes by normalized
 exact substring matching against their source factor, dropping failed quotes.
 No API key means the pipeline continues without summaries.
 

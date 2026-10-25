@@ -1,0 +1,29 @@
+name: Parser or comparison problem
+description: Report a source boundary, risk unit, alignment or diff failure.
+body:
+  - type: input
+    id: source
+    attributes:
+      label: Company and source filings
+      description: Ticker/CIK, accession(s), and public SEC source URL(s).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual result
+      description: Include the heading/boundary, short public-source excerpt, or incorrect relation.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction and version
+      description: Branch/commit, command or route, stage/version and flags. Omit contact headers, secrets, private logs and databases.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Optional screenshot, minimal fixture details or evaluation counts.
