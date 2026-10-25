@@ -19,6 +19,7 @@ from notsolazy.align import LocalEncoder, prepare_model
 from notsolazy.comparison import align_pair, diff_pair, invalidate_pair, segment_filing
 from notsolazy.config import Settings, section_rule
 from notsolazy.discover import DISCOVER_VERSION, NoAnnualReport, discover_company
+from notsolazy.evaluate import evaluate, load_manifest, markdown_report
 from notsolazy.fetch import fetch_filing
 from notsolazy.models import (
     Company,
@@ -70,6 +71,23 @@ def parser_for_cli() -> argparse.ArgumentParser:
     preview = commands.add_parser("preview", help="Export an explicit local company snapshot")
     preview.add_argument("--tickers", required=True, help="Comma-separated preview tickers")
     preview.add_argument("--output", type=Path, required=True, help="Local site data directory")
+    evaluation = commands.add_parser("evaluate", help="Evaluate source-anchored labels offline")
+    evaluation.add_argument("--manifest", type=Path, required=True)
+    evaluation.add_argument(
+        "--fixtures", type=Path, help="Fixture root (default: manifest's grandparent)"
+    )
+    evaluation.add_argument(
+        "--output", type=Path, required=True, help="Write full JSON measurements"
+    )
+    evaluation.add_argument(
+        "--report", type=Path, help="Also write a readable Markdown error report"
+    )
+    evaluation.add_argument(
+        "--extraction-only", action="store_true", help="Skip alignment and model use"
+    )
+    evaluation.add_argument(
+        "--fail-on-errors", action="store_true", help="Exit 1 on measured errors"
+    )
     review = commands.add_parser("review", help="Inspect or resolve a review flag")
     review_actions = review.add_subparsers(dest="action", required=True)
     review_actions.add_parser("list")
@@ -327,6 +345,25 @@ def main() -> None:
     args = parser.parse_args()
     try:
         settings = Settings()
+        if args.command == "evaluate":
+            report = evaluate(
+                load_manifest(args.manifest),
+                args.fixtures or args.manifest.resolve().parent.parent,
+                settings.data_dir / "evaluation-edgartools",
+                None if args.extraction_only else LocalEncoder(settings.data_dir),
+                semantic_threshold=settings.alignment_threshold,
+            )
+            LocalBlobStore(args.output.resolve().parent).write(
+                args.output.name, (json.dumps(report, indent=2, ensure_ascii=False) + "\n").encode()
+            )
+            if args.report:
+                LocalBlobStore(args.report.resolve().parent).write(
+                    args.report.name, markdown_report(report).encode()
+                )
+            print(json.dumps(report["summary"], indent=2))
+            if args.fail_on_errors and report["summary"]["error_categories"]:
+                parser.exit(1, "Evaluation found errors; see the saved report.\n")
+            return
         if args.command == "doctor":
             if args.require_sec:
                 settings.require_sec_identity()
@@ -411,8 +448,18 @@ def main() -> None:
                     run_stage(args, settings, session)
         finally:
             engine.dispose()
-    except ValidationError:
+    except ValidationError as error:
+        if args.command == "evaluate":
+            # Settings errors may contain credentials in their input values.
+            fields = [".".join(map(str, e["loc"])) or "root" for e in error.errors()]
+            parser.exit(
+                2, "Invalid evaluation configuration or manifest: " + ", ".join(fields) + "\n"
+            )
         parser.exit(2, "Invalid environment configuration; check .env.\n")
+    except (OSError, EOFError) as error:
+        if args.command == "evaluate":
+            parser.exit(2, f"Evaluation input/output error: {error}\n")
+        raise
     except ValueError as error:
         parser.exit(2, f"{error}\n")
     except httpx.HTTPStatusError as error:
