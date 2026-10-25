@@ -85,3 +85,55 @@ def test_styled_summary_bullets_are_context_not_separate_risks():
     assert [f.role for f in factors] == ["summary", "risk"]
     assert "Credit could harm" in factors[0].text
     assert factors[1].group == ""
+
+
+def test_repeated_larger_regular_weight_headings_keep_complete_bodies_and_offsets():
+    body = "Substantive evidence about our operations and suppliers. " * 12
+    payload = (
+        '<p style="font-size:18pt">Risk Factors</p>'
+        '<p style="font-size:9pt">Introductory context.</p>'
+        '<p style="font-size:12pt;font-weight:400;color:#0068b5">'
+        "Supplier disruptions could harm our business.</p>"
+        f'<p style="font-size:9pt">{body}</p>'
+        '<p style="font-size:9pt">Evidence continues on the next page.</p>'
+        '<p style="font-size:12pt;font-weight:400;color:#0068b5">'
+        "Credit losses could harm our business.</p>"
+        f'<p style="font-size:9pt">{body} Final credit evidence.</p>'
+    )
+    text, factors = parse(payload)
+    assert [f.role for f in factors] == ["preamble", "risk", "risk"]
+    risks = [f for f in factors if f.role == "risk"]
+    assert all(f.segmentation == "heading" for f in risks)
+    assert risks[0].heading == "Supplier disruptions could harm our business."
+    assert "Evidence continues on the next page." in risks[0].body
+    assert risks[1].body.endswith("Final credit evidence.")
+    assert all(text[f.start : f.end] == f.text for f in factors)
+
+
+def test_body_size_and_one_enlarged_sentence_do_not_invent_headings():
+    body = "Substantive evidence about our operations and suppliers. " * 12
+    _, factors = parse(
+        f'<p style="font-size:9pt">{body}</p>'
+        '<p style="font-size:12pt">An isolated enlarged sentence is insufficient.</p>'
+        f'<p style="font-size:9pt">{body}</p>'
+        '<p style="font-size:9pt">A normal sentence ends here.</p>'
+    )
+    assert all(not f.heading and f.segmentation == "paragraph" for f in factors)
+
+
+def test_font_inference_uses_selected_section_and_does_not_promote_list_bullets():
+    body = "Substantive evidence about our operations and suppliers. " * 12
+    blocks = clean_html(
+        (
+            '<p style="font-size:12pt">A larger heading in another section.</p>'
+            "<p>Item 1A. Risk Factors</p>"
+            f'<p style="font-size:9pt">{body}</p>'
+            '<p style="font-size:12pt">Only one enlarged sentence in this section.</p>'
+            '<ul style="font-size:12pt"><li>Our suppliers could harm us.</li>'
+            "<li>Our customers could harm us.</li></ul>"
+            f'<p style="font-size:9pt">{body}</p>'
+        ).encode()
+    )
+    selected = "\n\n".join(b.text for b in blocks[1:])
+    factors = segment(selected, "a", RULE, blocks)
+    assert all(not f.heading for f in factors)

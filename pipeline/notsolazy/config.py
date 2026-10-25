@@ -57,6 +57,7 @@ SECTION_RULES = {
             "Quantitative and Qualitative Disclosures about Market Risks",
             "Quantitative and Qualitative Disclosures About Market Risk",
             "Other Key Information",
+            "Sales and Marketing",
             "Unresolved Staff Comments",
             "Cybersecurity",
             "Properties",

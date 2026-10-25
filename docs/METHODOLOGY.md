@@ -20,7 +20,11 @@ accuracy evaluation. A smoke run of 18 annual reports retained one size-ratio fl
 for review rather than declaring every extraction ready.
 
 Segmentation uses standalone and inline styled risk headings with paragraph
-fallback. Summary lists and introductions remain separate context. Alignment
+fallback. Repeated regular-weight sentence headings at least 20% larger than the
+prevailing body font are also recognized, using evidence within the selected
+section. At least two long body paragraphs and two headings of the same larger
+size are required; isolated enlarged sentences and list bullets do not qualify.
+Summary lists and introductions remain separate context. Alignment
 runs exact normalized headings, unique reciprocal fuzzy headings (>=85), then
 pinned MiniLM embedding cosine similarity with one-to-one Hungarian assignment
 (>=0.80). Relative reorderings get a moved badge; simple insertion shifts do not.
@@ -44,9 +48,21 @@ No API key means the pipeline continues without summaries.
 Research context: Cohen, Malloy & Nguyen, “Lazy Prices,” Journal of Finance (2020),
 https://doi.org/10.1111/jofi.12885. This is context, never an investment signal.
 
-Validation pending: golden set (30 real pairs), full-backfill extraction accuracy,
+Validation pending: independently adjudicated golden set (30 real pairs),
+full-backfill extraction accuracy,
 alignment precision/recall, and Spearman correlation against Brain BLMCF Risk
-Factors similarity. No accuracy or correlation claim is made until measured.
+Factors similarity. No population-level accuracy or correlation claim is made
+until measured.
+
+Development evaluation: five agent-reviewed pairs cover 262 standalone risk
+starts across ten filings. The frozen labels are not human-adjudicated or held
+out. Extraction v3 and segmentation v3 fix Intel's peer-chapter overrun and
+paragraph fragmentation: all ten endpoint checks pass and no extra risk starts
+are predicted on this pilot. Five split/merge continuity edges remain missing
+under one-to-one matching. Exact factor-body endpoints, word-diff correctness,
+and S&P-wide accuracy are not established by these checks. See
+[the measured run](EVALUATION-INTEL-FIXED.md) and the retained
+[pre-fix baseline](EVALUATION-PILOT.md).
 
 Limits: formatting, split headings, amendments, fiscal-year changes, and imperfect
 factor segmentation can affect results. A high change score does not indicate

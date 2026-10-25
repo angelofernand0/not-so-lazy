@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections import Counter
 from dataclasses import dataclass
 
 from notsolazy.clean import Block, normalize_text
 from notsolazy.config import SectionRule
 
-SEGMENTER_VERSION = "segment-v2"
+SEGMENTER_VERSION = "segment-v3"
 
 
 @dataclass(frozen=True)
@@ -27,6 +28,48 @@ class Factor:
     role: str
     start: int
     end: int
+
+
+def _font_headings(paragraphs: list[re.Match[str]], styles: dict[int, Block]) -> set[int]:
+    """Recognize a repeated larger sentence style within this section only.
+
+    Some reports use regular-weight, colored 12pt risk headings over 9pt body
+    text. Infer size from long matched body paragraphs, not document-wide titles
+    or an isolated enlarged quotation. Original text and offsets stay untouched.
+    """
+    weights: Counter[float] = Counter()
+    body_counts: Counter[float] = Counter()
+    for paragraph in paragraphs:
+        block = styles.get(paragraph.start())
+        if (
+            block is not None
+            and block.font_size is not None
+            and not block.is_list_item
+            and not block.leading_heading
+            and len(paragraph.group().split()) >= 40
+        ):
+            weights[block.font_size] += len(paragraph.group())
+            body_counts[block.font_size] += 1
+    if not weights:
+        return set()
+    body_size = max(weights, key=lambda size: (weights[size], -size))
+    if body_counts[body_size] < 2:
+        return set()
+    candidates: dict[float, list[int]] = {}
+    for i, paragraph in enumerate(paragraphs):
+        block = styles.get(paragraph.start())
+        text = paragraph.group().strip()
+        if (
+            block is not None
+            and block.font_size is not None
+            and block.font_size >= body_size * 1.2
+            and not block.is_list_item
+            and not re.match(r"^[•●▪]\s*", text)
+            and 4 <= len(text.split()) <= 100
+            and re.search(r"[.!?]$", text)
+        ):
+            candidates.setdefault(block.font_size, []).append(i)
+    return {i for indices in candidates.values() if len(indices) >= 2 for i in indices}
 
 
 def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -> list[Factor]:
@@ -62,6 +105,7 @@ def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -
     groups: set[int] = set()
     summaries: set[int] = set()
     titles: set[int] = set()
+    font_headings = _font_headings(paragraphs, styles)
     for i, paragraph in enumerate(paragraphs):
         value = paragraph.group().strip()
         if re.fullmatch(
@@ -78,6 +122,7 @@ def segment(text: str, accession: str, rule: SectionRule, blocks: list[Block]) -
             or block.is_underlined
             or block.is_all_caps
             or block.tag in {"h1", "h2", "h3", "h4"}
+            or i in font_headings
         )
         if re.fullmatch(r"summary of (?:our )?risk factors[.:]?", value, re.I):
             summaries.add(i)

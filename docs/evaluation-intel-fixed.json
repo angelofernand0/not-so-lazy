@@ -1,0 +1,3093 @@
+{
+  "evaluator_version": "evaluate-v1",
+  "label_version": "pilot-v1",
+  "labels_sha256": "5f32f16695c4b7a243eaae53c2dde1dd1a7cdba608a9eb0e1ab1533ba3dee03b",
+  "review": {
+    "reviewer": "Codex (agent review)",
+    "independent_human_adjudication": false,
+    "method": "Reference headings, section endpoints and continuity decisions selected by reading cached source HTML/text independently of pipeline factor IDs or match output. Labels are a development pilot, not a held-out human gold standard.",
+    "limitations": [
+      "Five deliberately selected pairs; not representative of the S&P 500.",
+      "Heading-start detection is measured; exact factor body-end accuracy and change-type correctness are not measured.",
+      "Split/merge groups express all labeled continuity edges; one-to-one alignment cannot recover every edge.",
+      "Unresolved continuity groups are reported and excluded from alignment and added/removed metrics."
+    ]
+  },
+  "versions": {
+    "cleaner": "clean-v2",
+    "extractor": "extract-v3",
+    "segmenter": "segment-v3",
+    "aligner": "align-v1",
+    "model_revision": "1110a243fdf4706b3f48f1d95db1a4f5529b4d41",
+    "semantic_threshold": 0.8,
+    "fuzzy_threshold": 85
+  },
+  "metric_definitions": {
+    "section_boundaries": "Start anchor in first 1000 normalized characters AND exact normalized end-anchor suffix; all filings included, even flagged ones. Not full text accuracy.",
+    "heading_starts": "One distinct predicted risk unit must start with each reference heading. Does not measure exact body-end segmentation.",
+    "links_end_to_end": "Micro precision/recall of labeled continuity edges including segmentation misses and split/merge edges. Unmapped units count as false predictions.",
+    "links_on_detected_headings": "Conditional micro precision/recall restricted to links whose two reference heading starts were detected. Read alongside heading recall and end-to-end links.",
+    "added_removed": "Standalone factor additions/removals, not new/deleted topics. Split/merge continuations are not additions/removals. Unresolved reference endpoints excluded.",
+    "undefined": "A zero denominator produces null, never a fabricated perfect score."
+  },
+  "summary": {
+    "pairs": 5,
+    "documents": 10,
+    "section_boundaries_pass": 10,
+    "section_boundary_pass_rate": 1.0,
+    "documents_flagged": 0,
+    "heading_starts": {
+      "tp": 262,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    "alignment": {
+      "links_end_to_end": {
+        "tp": 123,
+        "fp": 0,
+        "fn": 5,
+        "precision": 1.0,
+        "recall": 0.9609375,
+        "f1": 0.9800796812749004
+      },
+      "links_on_detected_headings": {
+        "tp": 123,
+        "fp": 0,
+        "fn": 5,
+        "precision": 1.0,
+        "recall": 0.9609375,
+        "f1": 0.9800796812749004
+      },
+      "added": {
+        "tp": 4,
+        "fp": 4,
+        "fn": 0,
+        "precision": 0.5,
+        "recall": 1.0,
+        "f1": 0.6666666666666666
+      },
+      "removed": {
+        "tp": 4,
+        "fp": 2,
+        "fn": 0,
+        "precision": 0.6666666666666666,
+        "recall": 1.0,
+        "f1": 0.8
+      },
+      "unresolved_reference_factors": 2
+    },
+    "error_categories": {
+      "false_added": 4,
+      "false_removed": 2,
+      "missing_link": 5
+    }
+  },
+  "pairs": [
+    {
+      "id": "AAPL",
+      "notes": "Retail-store standalone risk is removed as a factor; overlapping retail discussion elsewhere does not constitute a retained standalone factor. Quarterly sales becomes sales/gross-margin volatility; ESG becomes stakeholder expectations.",
+      "reference": {
+        "id": "AAPL",
+        "notes": "Retail-store standalone risk is removed as a factor; overlapping retail discussion elsewhere does not constitute a retained standalone factor. Quarterly sales becomes sales/gross-margin volatility; ESG becomes stakeholder expectations.",
+        "prior": {
+          "accession": "0000320193-24-000123",
+          "report_date": "2024-09-28",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "sha256": "b2c1f78393520ed32b09eeb9bb38956092c150c2ed18fad878ccc023e25a16b4",
+          "fixture": "fixtures/html/aapl-2024-09-28-0000320193-24-000123.html.gz",
+          "section_start": "The Company’s business, reputation, results of operations, financial condition and stock price can be affected by a number of factors, whether currently known o",
+          "section_end": "ectations, the price of the Company’s stock may decline significantly, which could have a material adverse impact on investor confidence and employee retention.",
+          "factors": [
+            {
+              "id": "p01",
+              "heading": "The Company’s operations and performance depend significantly on global and regional economic conditions and adverse economic conditions can materially adversely affect the Company’s business, results of operations and financial condition."
+            },
+            {
+              "id": "p02",
+              "heading": "The Company’s business can be impacted by political events, trade and other international disputes, geopolitical tensions, conflict, terrorism, natural disasters, public health issues, industrial accidents and other business interruptions."
+            },
+            {
+              "id": "p03",
+              "heading": "Global markets for the Company’s products and services are highly competitive and subject to rapid technological change, and the Company may be unable to compete effectively in these markets."
+            },
+            {
+              "id": "p04",
+              "heading": "To remain competitive and stimulate customer demand, the Company must successfully manage frequent introductions and transitions of products and services."
+            },
+            {
+              "id": "p05",
+              "heading": "The Company depends on component and product manufacturing and logistical services provided by outsourcing partners, many of which are located outside of the U.S."
+            },
+            {
+              "id": "p06",
+              "heading": "Future operating results depend upon the Company’s ability to obtain components in sufficient quantities on commercially reasonable terms."
+            },
+            {
+              "id": "p07",
+              "heading": "The Company’s products and services may be affected from time to time by design and manufacturing defects that could materially adversely affect the Company’s business and result in harm to the Company’s reputation."
+            },
+            {
+              "id": "p08",
+              "heading": "The Company is exposed to the risk of write-downs on the value of its inventory and other assets, in addition to purchase commitment cancellation risk."
+            },
+            {
+              "id": "p09",
+              "heading": "The Company relies on access to third-party intellectual property, which may not be available to the Company on commercially reasonable terms, or at all."
+            },
+            {
+              "id": "p10",
+              "heading": "The Company’s future performance depends in part on support from third-party software developers."
+            },
+            {
+              "id": "p11",
+              "heading": "Failure to obtain or create digital content that appeals to the Company’s customers, or to make such content available on commercially reasonable terms, could have a material adverse impact on the Company’s business, results of operations and financial condition."
+            },
+            {
+              "id": "p12",
+              "heading": "The Company’s success depends largely on the talents and efforts of its team members, the continued service and availability of highly skilled employees, including key personnel, and the Company’s ability to nurture its distinctive and inclusive culture."
+            },
+            {
+              "id": "p13",
+              "heading": "The Company depends on the performance of carriers, wholesalers, retailers and other resellers."
+            },
+            {
+              "id": "p14",
+              "heading": "The Company’s business and reputation are impacted by information technology system failures and network disruptions."
+            },
+            {
+              "id": "p15",
+              "heading": "Losses or unauthorized access to or releases of confidential information, including personal information, could subject the Company to significant reputational, financial, legal and operational consequences."
+            },
+            {
+              "id": "p16",
+              "heading": "Investment in new business strategies and acquisitions could disrupt the Company’s ongoing business, present risks not originally contemplated and materially adversely affect the Company’s business, reputation, results of operations and financial condition."
+            },
+            {
+              "id": "p17",
+              "heading": "The Company’s retail stores are subject to numerous risks and uncertainties."
+            },
+            {
+              "id": "p18",
+              "heading": "The Company’s business, results of operations and financial condition could be adversely impacted by unfavorable results of legal proceedings or government investigations."
+            },
+            {
+              "id": "p19",
+              "heading": "The Company is subject to complex and changing laws and regulations worldwide, which exposes the Company to potential liabilities, increased costs and other adverse effects on the Company’s business."
+            },
+            {
+              "id": "p20",
+              "heading": "Expectations relating to environmental, social and governance considerations and related reporting obligations expose the Company to potential liabilities, increased costs, reputational harm, and other adverse effects on the Company’s business."
+            },
+            {
+              "id": "p21",
+              "heading": "The technology industry, including, in some instances, the Company, is subject to intense media, political and regulatory scrutiny, which exposes the Company to increasing regulation, government investigations, legal actions and penalties."
+            },
+            {
+              "id": "p22",
+              "heading": "The Company’s business is subject to a variety of U.S. and international laws, rules, policies and other obligations regarding data protection."
+            },
+            {
+              "id": "p23",
+              "heading": "The Company expects its quarterly net sales and results of operations to fluctuate."
+            },
+            {
+              "id": "p24",
+              "heading": "The Company’s financial performance is subject to risks associated with changes in the value of the U.S. dollar relative to local currencies."
+            },
+            {
+              "id": "p25",
+              "heading": "The Company is exposed to credit risk and fluctuations in the values of its investment portfolio."
+            },
+            {
+              "id": "p26",
+              "heading": "The Company is exposed to credit risk on its trade accounts receivable, vendor non-trade receivables and prepayments related to long-term supply agreements, and this risk is heightened during periods when economic conditions worsen."
+            },
+            {
+              "id": "p27",
+              "heading": "The Company is subject to changes in tax rates, the adoption of new U.S. or international tax legislation and exposure to additional tax liabilities."
+            },
+            {
+              "id": "p28",
+              "heading": "The price of the Company’s stock is subject to volatility."
+            }
+          ]
+        },
+        "current": {
+          "accession": "0000320193-25-000079",
+          "report_date": "2025-09-27",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019325000079/aapl-20250927.htm",
+          "sha256": "7edcaa2e56bc2896150b7b44e5b5b1683454b28ca6ef1a92921e373da7b039ac",
+          "fixture": "fixtures/html/aapl-2025-09-27-0000320193-25-000079.html.gz",
+          "section_start": "The following summarizes factors that could have a material adverse effect on the Company’s business, reputation, results of operations, financial condition and",
+          "section_end": "ectations, the price of the Company’s stock may decline significantly, which could have a material adverse impact on investor confidence and employee retention.",
+          "factors": [
+            {
+              "id": "c01",
+              "heading": "The Company’s operations and performance depend significantly on global and regional economic conditions and adverse economic conditions can materially adversely affect the Company’s business, results of operations, financial condition and stock price."
+            },
+            {
+              "id": "c02",
+              "heading": "The Company’s business can be impacted by political events, trade and other international disputes, geopolitical tensions, conflict, terrorism, natural disasters, public health issues, industrial accidents and other business interruptions."
+            },
+            {
+              "id": "c03",
+              "heading": "Global markets for the Company’s products and services are highly competitive and subject to rapid technological change, and the Company may be unable to compete effectively in these markets."
+            },
+            {
+              "id": "c04",
+              "heading": "To remain competitive and stimulate customer demand, the Company must successfully manage frequent introductions and transitions of products and services."
+            },
+            {
+              "id": "c05",
+              "heading": "The Company depends on component and product manufacturing and logistical services provided by outsourcing partners, many of which are located outside of the U.S."
+            },
+            {
+              "id": "c06",
+              "heading": "Future operating results depend upon the Company’s ability to obtain components in sufficient quantities on commercially reasonable terms."
+            },
+            {
+              "id": "c07",
+              "heading": "The Company’s products and services may be affected from time to time by design and manufacturing defects that could materially adversely affect the Company’s business and result in harm to the Company’s reputation."
+            },
+            {
+              "id": "c08",
+              "heading": "The Company is exposed to the risk of write-downs on the value of its inventory and other assets, in addition to purchase commitment cancellation risk."
+            },
+            {
+              "id": "c09",
+              "heading": "The Company relies on access to third-party intellectual property, which may not be available to the Company on commercially reasonable terms, or at all."
+            },
+            {
+              "id": "c10",
+              "heading": "The Company’s future performance depends in part on support from third-party software developers."
+            },
+            {
+              "id": "c11",
+              "heading": "Failure to obtain or create digital content that appeals to the Company’s customers, or to make such content available on commercially reasonable terms, could have a material adverse impact on the Company’s business, results of operations and financial condition."
+            },
+            {
+              "id": "c12",
+              "heading": "The Company’s success depends largely on the talents and efforts of its team members, the continued service and availability of highly skilled employees, including key personnel, and the Company’s ability to nurture its distinctive and inclusive culture."
+            },
+            {
+              "id": "c13",
+              "heading": "The Company depends on the performance of carriers and other resellers."
+            },
+            {
+              "id": "c14",
+              "heading": "The Company’s business and reputation are impacted by information technology system failures and network disruptions."
+            },
+            {
+              "id": "c15",
+              "heading": "Losses or unauthorized access to or releases of confidential information, including personal information, could subject the Company to significant reputational, financial, legal and operational consequences."
+            },
+            {
+              "id": "c16",
+              "heading": "Investment in new business strategies, commercial relationships and acquisitions could disrupt the Company’s ongoing business, present risks not originally contemplated, and materially adversely affect the Company’s business, reputation, results of operations and financial condition."
+            },
+            {
+              "id": "c17",
+              "heading": "The Company’s business, results of operations and financial condition could be adversely impacted by unfavorable results of legal proceedings or government investigations."
+            },
+            {
+              "id": "c18",
+              "heading": "The Company is subject to complex and changing laws and regulations worldwide, which exposes the Company to potential liabilities, increased costs and other adverse effects on the Company’s business."
+            },
+            {
+              "id": "c19",
+              "heading": "Varied stakeholder expectations about social and other issues expose the Company to potential liabilities, increased costs, reputational harm, and other adverse effects on the Company’s business."
+            },
+            {
+              "id": "c20",
+              "heading": "The technology industry, including, in some instances, the Company, is subject to intense media, political and regulatory scrutiny, which exposes the Company to increasing regulation, government investigations, legal actions and penalties."
+            },
+            {
+              "id": "c21",
+              "heading": "The Company’s business is subject to a variety of U.S. and international laws, rules, policies and other obligations regarding the collection, use, protection and transfer of personal data."
+            },
+            {
+              "id": "c22",
+              "heading": "The Company’s net sales and gross margins are subject to volatility and downward pressure due to a variety of factors."
+            },
+            {
+              "id": "c23",
+              "heading": "The Company’s financial performance is subject to risks associated with changes in the value of the U.S. dollar relative to local currencies."
+            },
+            {
+              "id": "c24",
+              "heading": "The Company is exposed to credit risk and fluctuations in the values of its investment portfolio."
+            },
+            {
+              "id": "c25",
+              "heading": "The Company is exposed to credit risk on its trade accounts receivable, vendor non-trade receivables and prepayments related to long-term supply agreements, and this risk is heightened during periods when economic conditions worsen."
+            },
+            {
+              "id": "c26",
+              "heading": "The Company is subject to changes in tax rates, the adoption of new U.S. or international tax legislation and exposure to additional tax liabilities."
+            },
+            {
+              "id": "c27",
+              "heading": "The price of the Company’s stock is subject to volatility."
+            }
+          ]
+        },
+        "relations": [
+          {
+            "prior": [
+              "p01"
+            ],
+            "current": [
+              "c01"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p02"
+            ],
+            "current": [
+              "c02"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p03"
+            ],
+            "current": [
+              "c03"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p04"
+            ],
+            "current": [
+              "c04"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p05"
+            ],
+            "current": [
+              "c05"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p06"
+            ],
+            "current": [
+              "c06"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p07"
+            ],
+            "current": [
+              "c07"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p08"
+            ],
+            "current": [
+              "c08"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p09"
+            ],
+            "current": [
+              "c09"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p10"
+            ],
+            "current": [
+              "c10"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p11"
+            ],
+            "current": [
+              "c11"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p12"
+            ],
+            "current": [
+              "c12"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p13"
+            ],
+            "current": [
+              "c13"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p14"
+            ],
+            "current": [
+              "c14"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p15"
+            ],
+            "current": [
+              "c15"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p16"
+            ],
+            "current": [
+              "c16"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p18"
+            ],
+            "current": [
+              "c17"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p19"
+            ],
+            "current": [
+              "c18"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p20"
+            ],
+            "current": [
+              "c19"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p21"
+            ],
+            "current": [
+              "c20"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p22"
+            ],
+            "current": [
+              "c21"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p23"
+            ],
+            "current": [
+              "c22"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p24"
+            ],
+            "current": [
+              "c23"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p25"
+            ],
+            "current": [
+              "c24"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p26"
+            ],
+            "current": [
+              "c25"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p27"
+            ],
+            "current": [
+              "c26"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p28"
+            ],
+            "current": [
+              "c27"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p17"
+            ],
+            "current": [],
+            "kind": "removed",
+            "note": ""
+          }
+        ]
+      },
+      "documents": [
+        {
+          "side": "prior",
+          "accession": "0000320193-24-000123",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019324000123/aapl-20240928.htm",
+          "source_sha256": "b2c1f78393520ed32b09eeb9bb38956092c150c2ed18fad878ccc023e25a16b4",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 28,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        },
+        {
+          "side": "current",
+          "accession": "0000320193-25-000079",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/320193/000032019325000079/aapl-20250927.htm",
+          "source_sha256": "7edcaa2e56bc2896150b7b44e5b5b1683454b28ca6ef1a92921e373da7b039ac",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 27,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      ],
+      "errors": [],
+      "alignment": {
+        "links_end_to_end": {
+          "tp": 27,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "links_on_detected_headings": {
+          "tp": 27,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "added": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "removed": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "reference_links": 27,
+        "reference_links_with_both_headings_detected": 27,
+        "unresolved_reference_factors": 0,
+        "split_groups": 0,
+        "merge_groups": 0
+      }
+    },
+    {
+      "id": "MSFT",
+      "notes": "Bold italic competition/security/abuse subheads stay inside parent risks. Plain bold inline headings with punctuation in a following span are separate risks. Cloud/AI execution, infrastructure, and supply/quality risks are split across the current filing.",
+      "reference": {
+        "id": "MSFT",
+        "notes": "Bold italic competition/security/abuse subheads stay inside parent risks. Plain bold inline headings with punctuation in a following span are separate risks. Cloud/AI execution, infrastructure, and supply/quality risks are split across the current filing.",
+        "prior": {
+          "accession": "0000950170-25-100235",
+          "report_date": "2025-06-30",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+          "sha256": "f913e42c9068c445f3d1c8ad61503570527e2c1486d886c507c68f8d8c56dc7e",
+          "fixture": "fixtures/html/msft-2025-06-30-0000950170-25-100235.html.gz",
+          "section_start": "Our operations and financial results are subject to various risks and uncertainties, including those described below, that could adversely affect our business, ",
+          "section_end": "result in higher costs and other operational changes necessary to respond to changing conditions and to establish new relationships with worker representatives.",
+          "factors": [
+            {
+              "id": "p01",
+              "heading": "We face intense competition across all markets for our products and services, which could adversely affect our results of operations."
+            },
+            {
+              "id": "p02",
+              "heading": "Our focus on cloud-based and AI services presents execution and competitive risks."
+            },
+            {
+              "id": "p03",
+              "heading": "We make significant investments in products and services that may not achieve expected returns."
+            },
+            {
+              "id": "p04",
+              "heading": "Acquisitions, joint ventures, and strategic alliances could have an adverse effect on our business."
+            },
+            {
+              "id": "p05",
+              "heading": "Cyberattacks and security vulnerabilities could lead to reduced revenue, increased costs, liability claims, or harm to our reputation or competitive position."
+            },
+            {
+              "id": "p06",
+              "heading": "Disclosure and misuse of personal data could result in liability and harm our reputation."
+            },
+            {
+              "id": "p07",
+              "heading": "We may not be able to protect information in our products and services from use by others."
+            },
+            {
+              "id": "p08",
+              "heading": "Abuse of our platforms may harm our reputation or user engagement."
+            },
+            {
+              "id": "p09",
+              "heading": "Our products and services, how they are used by customers, and how third-party products and services interact with them, may present security, privacy, and execution risks."
+            },
+            {
+              "id": "p10",
+              "heading": "Issues in the development, deployment, and use of AI may result in reputational or competitive harm or liability."
+            },
+            {
+              "id": "p11",
+              "heading": "We may have excessive outages, data losses, and disruptions of our online services if we fail to maintain an adequate operations infrastructure."
+            },
+            {
+              "id": "p12",
+              "heading": "We may experience supply or quality problems."
+            },
+            {
+              "id": "p13",
+              "heading": "We are subject to a variety of new, existing, and evolving legal and regulatory requirements that could adversely affect our results of operations."
+            },
+            {
+              "id": "p14",
+              "heading": "We have claims and lawsuits against us that may result in adverse outcomes."
+            },
+            {
+              "id": "p15",
+              "heading": "Our business with government customers may present additional uncertainties."
+            },
+            {
+              "id": "p16",
+              "heading": "We may have additional tax liabilities."
+            },
+            {
+              "id": "p17",
+              "heading": "We face risks related to the protection and utilization of our intellectual property that may result in our business and operating results being harmed."
+            },
+            {
+              "id": "p18",
+              "heading": "Third parties may claim that we infringe their intellectual property."
+            },
+            {
+              "id": "p19",
+              "heading": "If our reputation or our brands are damaged, our business and results of operations may be harmed."
+            },
+            {
+              "id": "p20",
+              "heading": "Adverse economic or market conditions could harm our business."
+            },
+            {
+              "id": "p21",
+              "heading": "Catastrophic events or geopolitical conditions could disrupt our business."
+            },
+            {
+              "id": "p22",
+              "heading": "Our global business exposes us to operational and economic risks."
+            },
+            {
+              "id": "p23",
+              "heading": "Our business depends on our ability to attract and retain talented employees."
+            }
+          ]
+        },
+        "current": {
+          "accession": "0001193125-26-323660",
+          "report_date": "2026-06-30",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
+          "sha256": "4e66d0f0d7bd1313e7aae2bbbbadffe2a0e8cbbe7fed60fd3b2311c0b0ca12ad",
+          "fixture": "fixtures/html/msft-2026-06-30-0001193125-26-323660.html.gz",
+          "section_start": "Our operations and financial results are subject to various risks and uncertainties, including those described below, that could adversely affect our business, ",
+          "section_end": "result in higher costs and other operational changes necessary to respond to changing conditions and to establish new relationships with worker representatives.",
+          "factors": [
+            {
+              "id": "c01",
+              "heading": "We face intense competition across all markets for our products and services, which could adversely affect our results of operations."
+            },
+            {
+              "id": "c02",
+              "heading": "Our cloud and AI strategy requires substantial investments and depends on evolving customer demand, technological developments, competitive dynamics, and regulatory conditions, any of which could adversely affect our business, financial condition, and results of operations."
+            },
+            {
+              "id": "c03",
+              "heading": "Our success depends on our ability to develop, deliver, and maintain competitive cloud-based and AI products and services that achieve broad customer adoption and sustainable revenue growth."
+            },
+            {
+              "id": "c04",
+              "heading": "We make significant investments in products and services that may not achieve expected returns."
+            },
+            {
+              "id": "c05",
+              "heading": "Acquisitions, joint ventures, and strategic alliances could have an adverse effect on our business."
+            },
+            {
+              "id": "c06",
+              "heading": "Cyberattacks and security vulnerabilities could lead to reduced revenue, increased costs, liability claims, or harm to our reputation or competitive position."
+            },
+            {
+              "id": "c07",
+              "heading": "Disclosure and misuse of personal data could result in liability and harm our reputation."
+            },
+            {
+              "id": "c08",
+              "heading": "We may not be able to protect information in our products and services from use by others."
+            },
+            {
+              "id": "c09",
+              "heading": "Abuse of our platforms may harm our reputation or user engagement."
+            },
+            {
+              "id": "c10",
+              "heading": "Our products and services, how they are used by customers, and how third-party products and services interact with them, may present security, privacy, and execution risks."
+            },
+            {
+              "id": "c11",
+              "heading": "Issues in the development, deployment, and use of AI may result in reputational or competitive harm or liability."
+            },
+            {
+              "id": "c12",
+              "heading": "We may be unable to develop and expand adequate infrastructure."
+            },
+            {
+              "id": "c13",
+              "heading": "We may experience supply problems."
+            },
+            {
+              "id": "c14",
+              "heading": "We may experience outages, disruptions, or capacity constraints if we fail to maintain and operate adequate infrastructure or secure the resources necessary to support it."
+            },
+            {
+              "id": "c15",
+              "heading": "We may experience other quality problems."
+            },
+            {
+              "id": "c16",
+              "heading": "We are subject to a variety of new, existing, and evolving legal and regulatory requirements that could adversely affect our results of operations."
+            },
+            {
+              "id": "c17",
+              "heading": "We have claims and lawsuits against us that may result in adverse outcomes."
+            },
+            {
+              "id": "c18",
+              "heading": "Our business with government customers may present additional uncertainties."
+            },
+            {
+              "id": "c19",
+              "heading": "We may have additional tax liabilities."
+            },
+            {
+              "id": "c20",
+              "heading": "We face risks related to the protection and utilization of our intellectual property that may result in our business and operating results being harmed."
+            },
+            {
+              "id": "c21",
+              "heading": "Third parties may claim that we infringe their intellectual property."
+            },
+            {
+              "id": "c22",
+              "heading": "If our reputation or our brands are damaged, our business and results of operations may be harmed."
+            },
+            {
+              "id": "c23",
+              "heading": "Adverse economic or market conditions could harm our business."
+            },
+            {
+              "id": "c24",
+              "heading": "Catastrophic events or geopolitical conditions could disrupt our business."
+            },
+            {
+              "id": "c25",
+              "heading": "Our global business exposes us to operational and economic risks."
+            },
+            {
+              "id": "c26",
+              "heading": "Our business depends on our ability to attract and retain talented employees."
+            }
+          ]
+        },
+        "relations": [
+          {
+            "prior": [
+              "p01"
+            ],
+            "current": [
+              "c01"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p03"
+            ],
+            "current": [
+              "c04"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p04"
+            ],
+            "current": [
+              "c05"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p05"
+            ],
+            "current": [
+              "c06"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p06"
+            ],
+            "current": [
+              "c07"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p07"
+            ],
+            "current": [
+              "c08"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p08"
+            ],
+            "current": [
+              "c09"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p09"
+            ],
+            "current": [
+              "c10"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p10"
+            ],
+            "current": [
+              "c11"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p13"
+            ],
+            "current": [
+              "c16"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p14"
+            ],
+            "current": [
+              "c17"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p15"
+            ],
+            "current": [
+              "c18"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p16"
+            ],
+            "current": [
+              "c19"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p17"
+            ],
+            "current": [
+              "c20"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p18"
+            ],
+            "current": [
+              "c21"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p19"
+            ],
+            "current": [
+              "c22"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p20"
+            ],
+            "current": [
+              "c23"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p21"
+            ],
+            "current": [
+              "c24"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p22"
+            ],
+            "current": [
+              "c25"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p23"
+            ],
+            "current": [
+              "c26"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p02"
+            ],
+            "current": [
+              "c02",
+              "c03"
+            ],
+            "kind": "split",
+            "note": "Prior cloud/AI execution discussion becomes capital/demand strategy and product adoption/execution factors."
+          },
+          {
+            "prior": [
+              "p11"
+            ],
+            "current": [
+              "c12",
+              "c14"
+            ],
+            "kind": "split",
+            "note": "Prior infrastructure factor includes building/expanding capacity and operating reliable services; these become separate current factors."
+          },
+          {
+            "prior": [
+              "p12"
+            ],
+            "current": [
+              "c13",
+              "c15"
+            ],
+            "kind": "split",
+            "note": "Supply-chain and software/hardware quality paragraphs become two current risks."
+          }
+        ]
+      },
+      "documents": [
+        {
+          "side": "prior",
+          "accession": "0000950170-25-100235",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm",
+          "source_sha256": "f913e42c9068c445f3d1c8ad61503570527e2c1486d886c507c68f8d8c56dc7e",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 23,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        },
+        {
+          "side": "current",
+          "accession": "0001193125-26-323660",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
+          "source_sha256": "4e66d0f0d7bd1313e7aae2bbbbadffe2a0e8cbbe7fed60fd3b2311c0b0ca12ad",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 26,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      ],
+      "errors": [
+        {
+          "category": "missing_link",
+          "prior": "p02",
+          "current": "c02",
+          "prior_heading": "Our focus on cloud-based and AI services presents execution and competitive risks.",
+          "current_heading": "Our cloud and AI strategy requires substantial investments and depends on evolving customer demand, technological developments, competitive dynamics, and regulatory conditions, any of which could adversely affect our business, financial condition, and results of operations."
+        },
+        {
+          "category": "missing_link",
+          "prior": "p02",
+          "current": "c03",
+          "prior_heading": "Our focus on cloud-based and AI services presents execution and competitive risks.",
+          "current_heading": "Our success depends on our ability to develop, deliver, and maintain competitive cloud-based and AI products and services that achieve broad customer adoption and sustainable revenue growth."
+        },
+        {
+          "category": "missing_link",
+          "prior": "p11",
+          "current": "c14",
+          "prior_heading": "We may have excessive outages, data losses, and disruptions of our online services if we fail to maintain an adequate operations infrastructure.",
+          "current_heading": "We may experience outages, disruptions, or capacity constraints if we fail to maintain and operate adequate infrastructure or secure the resources necessary to support it."
+        },
+        {
+          "category": "missing_link",
+          "prior": "p12",
+          "current": "c15",
+          "prior_heading": "We may experience supply or quality problems.",
+          "current_heading": "We may experience other quality problems."
+        },
+        {
+          "category": "false_added",
+          "factor": "c02",
+          "heading": "Our cloud and AI strategy requires substantial investments and depends on evolving customer demand, technological developments, competitive dynamics, and regulatory conditions, any of which could adversely affect our business, financial condition, and results of operations."
+        },
+        {
+          "category": "false_added",
+          "factor": "c03",
+          "heading": "Our success depends on our ability to develop, deliver, and maintain competitive cloud-based and AI products and services that achieve broad customer adoption and sustainable revenue growth."
+        },
+        {
+          "category": "false_added",
+          "factor": "c14",
+          "heading": "We may experience outages, disruptions, or capacity constraints if we fail to maintain and operate adequate infrastructure or secure the resources necessary to support it."
+        },
+        {
+          "category": "false_added",
+          "factor": "c15",
+          "heading": "We may experience other quality problems."
+        },
+        {
+          "category": "false_removed",
+          "factor": "p02",
+          "heading": "Our focus on cloud-based and AI services presents execution and competitive risks."
+        }
+      ],
+      "alignment": {
+        "links_end_to_end": {
+          "tp": 22,
+          "fp": 0,
+          "fn": 4,
+          "precision": 1.0,
+          "recall": 0.8461538461538461,
+          "f1": 0.9166666666666666
+        },
+        "links_on_detected_headings": {
+          "tp": 22,
+          "fp": 0,
+          "fn": 4,
+          "precision": 1.0,
+          "recall": 0.8461538461538461,
+          "f1": 0.9166666666666666
+        },
+        "added": {
+          "tp": 0,
+          "fp": 4,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0
+        },
+        "removed": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "f1": 0.0
+        },
+        "reference_links": 26,
+        "reference_links_with_both_headings_detected": 26,
+        "unresolved_reference_factors": 0,
+        "split_groups": 3,
+        "merge_groups": 0
+      }
+    },
+    {
+      "id": "HON",
+      "notes": "Standalone risks retain order and continuity despite changes to separation plans, capital-market access and stakeholder language. Industry examples and international-operation paragraphs are bodies, not separate factors.",
+      "reference": {
+        "id": "HON",
+        "notes": "Standalone risks retain order and continuity despite changes to separation plans, capital-market access and stakeholder language. Industry examples and international-operation paragraphs are bodies, not separate factors.",
+        "prior": {
+          "accession": "0000773840-25-000010",
+          "report_date": "2024-12-31",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/773840/000077384025000010/hon-20241231.htm",
+          "sha256": "2a0e43277c6aa2902ad6b889df8a4588c9511106b0bc282596a17cbcbc065c04",
+          "fixture": "fixtures/html/hon-2024-12-31-0000773840-25-000010.html.gz",
+          "section_start": "Our business, operating results, cash flows, and financial condition are subject to the material risks and uncertainties set forth below, any one of which could",
+          "section_end": "s and Contingencies of Notes to Consolidated Financial Statements for further discussion regarding the uncertainty associated with asbestos-related liabilities.",
+          "factors": [
+            {
+              "id": "p01",
+              "heading": "Each of our businesses is subject to unique industry and economic conditions that may adversely affect the markets and operating conditions of our customers, which in turn can affect demand for our products and services and our results of operations."
+            },
+            {
+              "id": "p02",
+              "heading": "A significant percentage of our sales and operations is in non-U.S. jurisdictions and is subject to the economic, political, regulatory, foreign exchange, and other risks of international operations."
+            },
+            {
+              "id": "p03",
+              "heading": "Risks related to our defined benefit pension plans may adversely impact our results of operations and cash flow."
+            },
+            {
+              "id": "p04",
+              "heading": "Raw material price fluctuations, inflation, the ability of key suppliers to meet quality and delivery requirements, or catastrophic events can increase the cost of our products and services, impact our ability to meet commitments to customers, and cause us to incur significant liabilities."
+            },
+            {
+              "id": "p05",
+              "heading": "We may be unable to successfully execute or effectively integrate acquisitions, and divestitures may not occur as planned."
+            },
+            {
+              "id": "p06",
+              "heading": "The Company is subject to risks related to its plans to separate Automation and Aerospace Technologies and to spin off its Advanced Materials business into standalone, publicly traded companies."
+            },
+            {
+              "id": "p07",
+              "heading": "Our future growth is largely dependent upon our ability to develop new technologies and introduce new products that achieve market acceptance in increasingly competitive markets with acceptable margins."
+            },
+            {
+              "id": "p08",
+              "heading": "Failure to increase productivity through sustainable operational improvements, as well as an inability to successfully execute repositioning projects or to effectively manage our workforce, may reduce our profitability or adversely impact our businesses."
+            },
+            {
+              "id": "p09",
+              "heading": "As a supplier to the U.S. government, we are subject to unique risks, such as the right of the U.S. government to terminate contracts for convenience and to conduct audits and investigations of our operations and performance."
+            },
+            {
+              "id": "p10",
+              "heading": "Our operations and the prior operations of predecessor companies expose us to the risk of material environmental liabilities."
+            },
+            {
+              "id": "p11",
+              "heading": "Our business, reputation, and financial performance may be materially impacted by cybersecurity attacks on our IT infrastructure and products."
+            },
+            {
+              "id": "p12",
+              "heading": "The development of technology products and services presents security and safety risks."
+            },
+            {
+              "id": "p13",
+              "heading": "Data privacy, data protection, and information security may require significant resources and present certain risks."
+            },
+            {
+              "id": "p14",
+              "heading": "A material disruption of our operations, particularly at our manufacturing facilities or within our IT infrastructure, could adversely affect our business."
+            },
+            {
+              "id": "p15",
+              "heading": "Concentrations of credit, counterparty, and market risk may adversely affect our results of operations and financial condition."
+            },
+            {
+              "id": "p16",
+              "heading": "We are impacted by increasing stakeholder interest in public company performance, disclosure, and goal-setting with respect to environmental, social, and governance (ESG) matters."
+            },
+            {
+              "id": "p17",
+              "heading": "Global climate change and related regulations and changes in customer demand could negatively affect our operations and our business."
+            },
+            {
+              "id": "p18",
+              "heading": "Our U.S. and non-U.S. tax liabilities are dependent, in part, upon the distribution of income among various jurisdictions in which we operate, as well as changes in tax law or regulation."
+            },
+            {
+              "id": "p19",
+              "heading": "Changes in legislation or government regulations or policies can have a significant impact on our results of operations."
+            },
+            {
+              "id": "p20",
+              "heading": "Increased focus and evolving views of lawmakers on climate change and other ESG issues could have a long-term impact on our business and result of operations."
+            },
+            {
+              "id": "p21",
+              "heading": "We cannot predict with certainty the outcome of litigation matters, government proceedings and other contingencies and uncertainties."
+            }
+          ]
+        },
+        "current": {
+          "accession": "0000773840-26-000013",
+          "report_date": "2025-12-31",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/773840/000077384026000013/hon-20251231.htm",
+          "sha256": "d3a64d62c8a6ff26afbeee992ca7d15e4210bec28df89b18459ecc8933071020",
+          "fixture": "fixtures/html/hon-2025-12-31-0000773840-26-000013.html.gz",
+          "section_start": "Our business, operating results, cash flows, and financial condition are subject to the material risks and uncertainties set forth below, any one of which could",
+          "section_end": "ities for which there is no or insufficient insurance coverage could adversely affect our results of operations, cash flows, liquidity, and financial condition.",
+          "factors": [
+            {
+              "id": "c01",
+              "heading": "The Company and each of our businesses is subject to unique industry and economic conditions that may adversely affect the markets and operating conditions of our customers, which in turn can affect demand for our products and services and our results of operations."
+            },
+            {
+              "id": "c02",
+              "heading": "A significant percentage of our sales and operations is in non-U.S. jurisdictions and is subject to the economic, political, regulatory, foreign exchange, and other risks of international operations."
+            },
+            {
+              "id": "c03",
+              "heading": "Risks related to our defined benefit pension plans may adversely impact our results of operations and cash flow."
+            },
+            {
+              "id": "c04",
+              "heading": "Raw material price fluctuations, inflation, the ability of key suppliers to meet quality and delivery requirements, or catastrophic events can increase the cost of our products and services, impact our ability to meet commitments to customers, and cause us to incur significant liabilities."
+            },
+            {
+              "id": "c05",
+              "heading": "We may be unable to successfully execute or effectively integrate acquisitions, and divestitures may not occur as planned."
+            },
+            {
+              "id": "c06",
+              "heading": "The Company is subject to risks related to its plan to separate Honeywell from Honeywell Aerospace, into standalone, publicly traded companies."
+            },
+            {
+              "id": "c07",
+              "heading": "Our future growth is largely dependent upon our ability to develop new technologies and introduce new products that achieve market acceptance in increasingly competitive markets with acceptable margins."
+            },
+            {
+              "id": "c08",
+              "heading": "Failure to increase productivity or enhance operations through sustainable operational improvements, as well as an inability to successfully execute repositioning projects or to effectively manage our workforce, may reduce our profitability or adversely impact our businesses."
+            },
+            {
+              "id": "c09",
+              "heading": "As a supplier to the U.S. government, we are subject to unique risks, such as the right of the U.S. government to terminate contracts for convenience and to conduct audits and investigations of our operations and performance."
+            },
+            {
+              "id": "c10",
+              "heading": "Our operations and the prior operations of predecessor companies expose us to the risk of material environmental liabilities."
+            },
+            {
+              "id": "c11",
+              "heading": "Our business, reputation, and financial performance may be materially impacted by cybersecurity attacks on our IT infrastructure and products."
+            },
+            {
+              "id": "c12",
+              "heading": "The development of technology products and services presents security and safety risks."
+            },
+            {
+              "id": "c13",
+              "heading": "Data privacy, data protection, and information security may require significant resources and present certain risks."
+            },
+            {
+              "id": "c14",
+              "heading": "A material disruption of our operations, particularly at our manufacturing facilities or within our IT infrastructure, could adversely affect our business."
+            },
+            {
+              "id": "c15",
+              "heading": "Concentrations of credit, counterparty, and market risk, and limitations in our ability to access the capital markets may adversely affect our results of operations and financial condition."
+            },
+            {
+              "id": "c16",
+              "heading": "We are impacted by stakeholder interest in public company performance, disclosure, and goal-setting with respect to environmental, social, and governance (ESG) matters."
+            },
+            {
+              "id": "c17",
+              "heading": "Global climate change and related regulations and changes in customer demand could negatively affect our operations and our business."
+            },
+            {
+              "id": "c18",
+              "heading": "Our U.S. and non-U.S. tax liabilities are dependent, in part, upon the distribution of income among various jurisdictions in which we operate, as well as changes in tax law or regulation."
+            },
+            {
+              "id": "c19",
+              "heading": "Changes in legislation or government regulations or policies can have a significant impact on our results of operations."
+            },
+            {
+              "id": "c20",
+              "heading": "Increased focus and evolving views of lawmakers on climate change and other ESG issues could have a long-term impact on our business and result of operations."
+            },
+            {
+              "id": "c21",
+              "heading": "We cannot predict with certainty the outcome of litigation matters, government proceedings and other contingencies and uncertainties."
+            }
+          ]
+        },
+        "relations": [
+          {
+            "prior": [
+              "p01"
+            ],
+            "current": [
+              "c01"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p02"
+            ],
+            "current": [
+              "c02"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p03"
+            ],
+            "current": [
+              "c03"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p04"
+            ],
+            "current": [
+              "c04"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p05"
+            ],
+            "current": [
+              "c05"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p06"
+            ],
+            "current": [
+              "c06"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p07"
+            ],
+            "current": [
+              "c07"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p08"
+            ],
+            "current": [
+              "c08"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p09"
+            ],
+            "current": [
+              "c09"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p10"
+            ],
+            "current": [
+              "c10"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p11"
+            ],
+            "current": [
+              "c11"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p12"
+            ],
+            "current": [
+              "c12"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p13"
+            ],
+            "current": [
+              "c13"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p14"
+            ],
+            "current": [
+              "c14"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p15"
+            ],
+            "current": [
+              "c15"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p16"
+            ],
+            "current": [
+              "c16"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p17"
+            ],
+            "current": [
+              "c17"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p18"
+            ],
+            "current": [
+              "c18"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p19"
+            ],
+            "current": [
+              "c19"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p20"
+            ],
+            "current": [
+              "c20"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p21"
+            ],
+            "current": [
+              "c21"
+            ],
+            "kind": "match",
+            "note": ""
+          }
+        ]
+      },
+      "documents": [
+        {
+          "side": "prior",
+          "accession": "0000773840-25-000010",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/773840/000077384025000010/hon-20241231.htm",
+          "source_sha256": "2a0e43277c6aa2902ad6b889df8a4588c9511106b0bc282596a17cbcbc065c04",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 21,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        },
+        {
+          "side": "current",
+          "accession": "0000773840-26-000013",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/773840/000077384026000013/hon-20251231.htm",
+          "source_sha256": "d3a64d62c8a6ff26afbeee992ca7d15e4210bec28df89b18459ecc8933071020",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 21,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      ],
+      "errors": [],
+      "alignment": {
+        "links_end_to_end": {
+          "tp": 21,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "links_on_detected_headings": {
+          "tp": 21,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "added": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "removed": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "precision": null,
+          "recall": null,
+          "f1": null
+        },
+        "reference_links": 21,
+        "reference_links_with_both_headings_detected": 21,
+        "unresolved_reference_factors": 0,
+        "split_groups": 0,
+        "merge_groups": 0
+      }
+    },
+    {
+      "id": "INTC",
+      "notes": "Prior technology-development risk is merged into R&D/manufacturing risk; paragraphs on disaggregated design and process delays persist there. Foundry strategy is substantially reframed around Intel 14A. That continuity decision is unresolved and excluded from alignment scoring pending independent adjudication. U.S. government equity risk is added. Capital returns and corporate responsibility standalone factors are removed. Prior Risk Factors ends before Sales and Marketing, despite a shared chapter footer.",
+      "reference": {
+        "id": "INTC",
+        "notes": "Prior technology-development risk is merged into R&D/manufacturing risk; paragraphs on disaggregated design and process delays persist there. Foundry strategy is substantially reframed around Intel 14A. That continuity decision is unresolved and excluded from alignment scoring pending independent adjudication. U.S. government equity risk is added. Capital returns and corporate responsibility standalone factors are removed. Prior Risk Factors ends before Sales and Marketing, despite a shared chapter footer.",
+        "prior": {
+          "accession": "0000050863-25-000009",
+          "report_date": "2024-12-28",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086325000009/intc-20241228.htm",
+          "sha256": "cadc56638b7d909e9272a7b1ad05bded3f9b9b10850f83f8c40d854f28e9a0f4",
+          "fixture": "fixtures/html/intc-2024-12-28-0000050863-25-000009.html.gz",
+          "section_start": "The following summarizes the material factors that make an investment in our securities speculative or risky. When any one or more of the following risks materi",
+          "section_end": "ers concerning ESG and climate matters, could impose additional costs on us and expose us to new risks, including resulting in changes to our current ESG goals.",
+          "factors": [
+            {
+              "id": "p01",
+              "heading": "We are in a highly competitive and rapidly changing industry."
+            },
+            {
+              "id": "p02",
+              "heading": "We are making significant, long-term and inherently risky investments in R&D and manufacturing facilities that may not realize a favorable return."
+            },
+            {
+              "id": "p03",
+              "heading": "The development and implementation of new semiconductor products and manufacturing technologies are subject to many risks and uncertainties."
+            },
+            {
+              "id": "p04",
+              "heading": "Our implementation of new business strategies and investments in new businesses, products, and technologies are inherently risky and do not always succeed."
+            },
+            {
+              "id": "p05",
+              "heading": "Our Smart Capital approach to capital spending, alternative financing arrangements, and pursuit of government grants involves risks and may not be successful."
+            },
+            {
+              "id": "p06",
+              "heading": "Changes in product demand and margins can adversely affect our financial results."
+            },
+            {
+              "id": "p07",
+              "heading": "Macroeconomic conditions and geopolitical tensions and conflicts, including changes to trade policies and regulations, present significant risks to us in many jurisdictions."
+            },
+            {
+              "id": "p08",
+              "heading": "We are subject to numerous risks associated with the evolving market for products with AI capabilities."
+            },
+            {
+              "id": "p09",
+              "heading": "We rely upon a complex global supply chain."
+            },
+            {
+              "id": "p10",
+              "heading": "We are subject to the risks of product defects, errata, or other product issues."
+            },
+            {
+              "id": "p11",
+              "heading": "We face risks related to security vulnerabilities in our products."
+            },
+            {
+              "id": "p12",
+              "heading": "We are subject to increasing and evolving cybersecurity threats and privacy risks."
+            },
+            {
+              "id": "p13",
+              "heading": "We are subject to IP risks, including related litigation and regulatory proceedings."
+            },
+            {
+              "id": "p14",
+              "heading": "We must attract, retain, and motivate key talent."
+            },
+            {
+              "id": "p15",
+              "heading": "We are subject to risks associated with our strategic transactions and investments."
+            },
+            {
+              "id": "p16",
+              "heading": "We are subject to sales-related risks."
+            },
+            {
+              "id": "p17",
+              "heading": "We face risks related to our debt obligations."
+            },
+            {
+              "id": "p18",
+              "heading": "We have ceased to return capital to stockholders."
+            },
+            {
+              "id": "p19",
+              "heading": "Laws and regulations can have a negative impact on our business."
+            },
+            {
+              "id": "p20",
+              "heading": "We are affected by fluctuations in currency exchange rates."
+            },
+            {
+              "id": "p21",
+              "heading": "Changes in our effective tax rate may impact our net income."
+            },
+            {
+              "id": "p22",
+              "heading": "Catastrophic events can have a material adverse effect on our operations and financial results."
+            },
+            {
+              "id": "p23",
+              "heading": "We are subject to risks associated with environmental, health, safety, and product regulations."
+            },
+            {
+              "id": "p24",
+              "heading": "Our initiatives and new legal requirements with respect to corporate responsibility matters present various risks."
+            }
+          ]
+        },
+        "current": {
+          "accession": "0000050863-26-000011",
+          "report_date": "2025-12-27",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000011/intc-20251227.htm",
+          "sha256": "2d9da84be6d4f4fbf684ec67bda626cf7874efae185df12ed84efc2e91c1dacc",
+          "fixture": "fixtures/html/intc-2025-12-27-0000050863-26-000011.html.gz",
+          "section_start": "The following summarizes what we believe to be the material factors that make an investment in our securities speculative or risky. When any one or more of the ",
+          "section_end": "estrictions could harm our business and results of operations by increasing our expenses or requiring us to alter manufacturing and assembly and test processes.",
+          "factors": [
+            {
+              "id": "c01",
+              "heading": "We are in a highly competitive and rapidly changing industry."
+            },
+            {
+              "id": "c02",
+              "heading": "We are making significant, long-term and inherently risky investments in R&D and manufacturing facilities that may not realize a favorable return."
+            },
+            {
+              "id": "c03",
+              "heading": "If we are unable to secure a significant external foundry customer for Intel 14A, our next generation semiconductor manufacturing process technology, we may pause or discontinue our pursuit of next generation leading-edge process technologies."
+            },
+            {
+              "id": "c04",
+              "heading": "Our alternative financing arrangements and pursuit of government grants involve risks and may not be successful."
+            },
+            {
+              "id": "c05",
+              "heading": "There are a number of risks and uncertainties associated with the U.S. government’s acquisition of significant equity interests in us."
+            },
+            {
+              "id": "c06",
+              "heading": "Changes in product demand and margins can adversely affect our financial results."
+            },
+            {
+              "id": "c07",
+              "heading": "Macroeconomic conditions and geopolitical tensions and conflicts, including changes to trade policies and regulations, present significant risks to us in many jurisdictions."
+            },
+            {
+              "id": "c08",
+              "heading": "We are subject to numerous risks associated with the evolving market for products with AI capabilities."
+            },
+            {
+              "id": "c09",
+              "heading": "We rely upon a complex global supply chain."
+            },
+            {
+              "id": "c10",
+              "heading": "We are subject to the risks of product defects, errata or other product issues."
+            },
+            {
+              "id": "c11",
+              "heading": "We face risks related to security vulnerabilities in our products."
+            },
+            {
+              "id": "c12",
+              "heading": "We are subject to increasing and evolving cybersecurity threats and privacy risks."
+            },
+            {
+              "id": "c13",
+              "heading": "We are subject to IP risks, including related litigation and regulatory proceedings."
+            },
+            {
+              "id": "c14",
+              "heading": "We must attract, retain and motivate key talent."
+            },
+            {
+              "id": "c15",
+              "heading": "We are subject to risks associated with our strategic transactions and investments."
+            },
+            {
+              "id": "c16",
+              "heading": "We are subject to sales-related risks."
+            },
+            {
+              "id": "c17",
+              "heading": "We face risks related to our debt obligations."
+            },
+            {
+              "id": "c18",
+              "heading": "Laws and regulations can have a negative impact on our business."
+            },
+            {
+              "id": "c19",
+              "heading": "Catastrophic events can have a material adverse effect on our operations and financial results."
+            },
+            {
+              "id": "c20",
+              "heading": "We are affected by fluctuations in currency exchange rates."
+            },
+            {
+              "id": "c21",
+              "heading": "Changes in our effective tax rate may impact our net income."
+            },
+            {
+              "id": "c22",
+              "heading": "We are subject to risks associated with environmental, health, safety and product regulations."
+            }
+          ]
+        },
+        "relations": [
+          {
+            "prior": [
+              "p01"
+            ],
+            "current": [
+              "c01"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p05"
+            ],
+            "current": [
+              "c04"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p06"
+            ],
+            "current": [
+              "c06"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p07"
+            ],
+            "current": [
+              "c07"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p08"
+            ],
+            "current": [
+              "c08"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p09"
+            ],
+            "current": [
+              "c09"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p10"
+            ],
+            "current": [
+              "c10"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p11"
+            ],
+            "current": [
+              "c11"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p12"
+            ],
+            "current": [
+              "c12"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p13"
+            ],
+            "current": [
+              "c13"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p14"
+            ],
+            "current": [
+              "c14"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p15"
+            ],
+            "current": [
+              "c15"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p16"
+            ],
+            "current": [
+              "c16"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p17"
+            ],
+            "current": [
+              "c17"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p19"
+            ],
+            "current": [
+              "c18"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p20"
+            ],
+            "current": [
+              "c20"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p21"
+            ],
+            "current": [
+              "c21"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p22"
+            ],
+            "current": [
+              "c19"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p23"
+            ],
+            "current": [
+              "c22"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p02",
+              "p03"
+            ],
+            "current": [
+              "c02"
+            ],
+            "kind": "merge",
+            "note": "Process delays, yields, disaggregated designs and investment-return discussion are consolidated in the current R&D/manufacturing risk."
+          },
+          {
+            "prior": [
+              "p04"
+            ],
+            "current": [
+              "c03"
+            ],
+            "kind": "unresolved",
+            "note": "Current Intel 14A risk is much more specific than the prior broad strategy risk; independently adjudicate retained continuity versus removal plus addition."
+          },
+          {
+            "prior": [
+              "p18"
+            ],
+            "current": [],
+            "kind": "removed",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p24"
+            ],
+            "current": [],
+            "kind": "removed",
+            "note": ""
+          },
+          {
+            "prior": [],
+            "current": [
+              "c05"
+            ],
+            "kind": "added",
+            "note": ""
+          }
+        ]
+      },
+      "documents": [
+        {
+          "side": "prior",
+          "accession": "0000050863-25-000009",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086325000009/intc-20241228.htm",
+          "source_sha256": "cadc56638b7d909e9272a7b1ad05bded3f9b9b10850f83f8c40d854f28e9a0f4",
+          "extractor": "fallback",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 24,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        },
+        {
+          "side": "current",
+          "accession": "0000050863-26-000011",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/50863/000005086326000011/intc-20251227.htm",
+          "source_sha256": "2d9da84be6d4f4fbf684ec67bda626cf7874efae185df12ed84efc2e91c1dacc",
+          "extractor": "fallback",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 22,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      ],
+      "errors": [
+        {
+          "category": "missing_link",
+          "prior": "p03",
+          "current": "c02",
+          "prior_heading": "The development and implementation of new semiconductor products and manufacturing technologies are subject to many risks and uncertainties.",
+          "current_heading": "We are making significant, long-term and inherently risky investments in R&D and manufacturing facilities that may not realize a favorable return."
+        },
+        {
+          "category": "false_removed",
+          "factor": "p03",
+          "heading": "The development and implementation of new semiconductor products and manufacturing technologies are subject to many risks and uncertainties."
+        }
+      ],
+      "alignment": {
+        "links_end_to_end": {
+          "tp": 20,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.9523809523809523,
+          "f1": 0.975609756097561
+        },
+        "links_on_detected_headings": {
+          "tp": 20,
+          "fp": 0,
+          "fn": 1,
+          "precision": 1.0,
+          "recall": 0.9523809523809523,
+          "f1": 0.975609756097561
+        },
+        "added": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "removed": {
+          "tp": 2,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.6666666666666666,
+          "recall": 1.0,
+          "f1": 0.8
+        },
+        "reference_links": 21,
+        "reference_links_with_both_headings_detected": 21,
+        "unresolved_reference_factors": 2,
+        "split_groups": 0,
+        "merge_groups": 1
+      }
+    },
+    {
+      "id": "O",
+      "notes": "Most risks are reordered into new groups. New standalone factors cover loans, client financial stability and client/borrower/guarantor bankruptcy. ADA/fire/safety standalone factor is removed; similar regulation elsewhere does not by itself preserve factor identity.",
+      "reference": {
+        "id": "O",
+        "notes": "Most risks are reordered into new groups. New standalone factors cover loans, client financial stability and client/borrower/guarantor bankruptcy. ADA/fire/safety standalone factor is removed; similar regulation elsewhere does not by itself preserve factor identity.",
+        "prior": {
+          "accession": "0000726728-25-000055",
+          "report_date": "2024-12-31",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/726728/000072672825000055/o-20241231.htm",
+          "sha256": "cf45b6251e649c2e782eeca2c3db60d5ff309eb8b66b24ca72f7b0a7e877cf6e",
+          "fixture": "fixtures/html/o-2024-12-31-0000726728-25-000055.html.gz",
+          "section_start": "This “Risk Factors” section contains references to our “capital stock” and to our “stockholders.” Unless expressly stated otherwise, the references to our “capi",
+          "section_end": " execute on our strategic plans. All of these impacts could materially adversely affect our business, reputation, results of operations and financial condition.",
+          "factors": [
+            {
+              "id": "p01",
+              "heading": "In order to grow we need to continue to acquire investment properties. The acquisition of investment properties may be subject to competitive pressures."
+            },
+            {
+              "id": "p02",
+              "heading": "Negative market conditions or adverse events affecting our existing or potential clients, or the industries in which they operate, could have an adverse impact on our ability to attract new clients, re-lease space, collect rent or renew leases, which could adversely affect our cash flow from operations and inhibit growth."
+            },
+            {
+              "id": "p03",
+              "heading": "If we fail to qualify as a REIT, it could adversely impact us, and the amount of dividends we are able to pay would decrease, which could adversely affect the market price of our capital stock and could adversely affect the value of our debt securities."
+            },
+            {
+              "id": "p04",
+              "heading": "Changes in U.S. or Non-U.S. tax laws and regulations, including changes to tax rates, and legislative or other actions may adversely affect us or our investors."
+            },
+            {
+              "id": "p05",
+              "heading": "Distribution requirements imposed by law limit our flexibility."
+            },
+            {
+              "id": "p06",
+              "heading": "Future issuances of equity securities could dilute the interest of holders of our common stock."
+            },
+            {
+              "id": "p07",
+              "heading": "We may acquire properties or portfolios of properties through tax deferred contribution transactions, which could result in stockholder dilution and limit our ability to sell or refinance such assets."
+            },
+            {
+              "id": "p08",
+              "heading": "We are subject to risks associated with debt and preferred stock financing."
+            },
+            {
+              "id": "p09",
+              "heading": "Real estate ownership is subject to particular conditions that may have a negative impact on our revenue."
+            },
+            {
+              "id": "p10",
+              "heading": "Real estate property investments are illiquid. We may not be able to acquire or dispose of properties when desired or on favorable terms."
+            },
+            {
+              "id": "p11",
+              "heading": "Our acquisition of additional properties may have a significant effect on our business, liquidity, financial position and/or results of operations."
+            },
+            {
+              "id": "p12",
+              "heading": "As a property owner, we may be subject to unknown environmental liabilities."
+            },
+            {
+              "id": "p13",
+              "heading": "We are subject to risks and liabilities in connection with forming and attracting third-party investment in our anticipated fund business, investing in new or existing co-investment ventures or funds, and managing properties through our anticipated fund business or other co-investment ventures."
+            },
+            {
+              "id": "p14",
+              "heading": "We are subject to additional risks from our international investments and debt."
+            },
+            {
+              "id": "p15",
+              "heading": "We may engage in development, speculative development, or expansion projects or invest in new asset classes, which would subject us to additional risks that could negatively impact our operations."
+            },
+            {
+              "id": "p16",
+              "heading": "Property taxes may increase without notice."
+            },
+            {
+              "id": "p17",
+              "heading": "We may face extensive regulations from gaming and other regulatory authorities regarding current and future gaming properties."
+            },
+            {
+              "id": "p18",
+              "heading": "An uninsured loss or a loss that exceeds the policy limits on our properties could subject us to lost capital or revenue on those properties."
+            },
+            {
+              "id": "p19",
+              "heading": "Compliance with the Americans with Disabilities Act of 1990 and fire, safety, and other regulations may require us to make unanticipated expenditures that could adversely impact our results of operations."
+            },
+            {
+              "id": "p20",
+              "heading": "Our business is subject to risks associated with climate change."
+            },
+            {
+              "id": "p21",
+              "heading": "Increased scrutiny and changing expectations from regulators and other stakeholders regarding sustainability practices and reporting could impact our business practices, cause us to incur additional costs and expose us to new risks."
+            },
+            {
+              "id": "p22",
+              "heading": "Our charter contains restrictions upon ownership of our common stock."
+            },
+            {
+              "id": "p23",
+              "heading": "The value of certain of our investment in real property may be reduced as the result of the expiration or loss of local tax abatements, tax credit programs, or other governmental incentives."
+            },
+            {
+              "id": "p24",
+              "heading": "The market value of our capital stock and debt securities could be substantially affected by various factors."
+            },
+            {
+              "id": "p25",
+              "heading": "Litigation risks could affect our business."
+            },
+            {
+              "id": "p26",
+              "heading": "We depend on key personnel."
+            },
+            {
+              "id": "p27",
+              "heading": "Natural disasters, terrorist attacks, other acts of violence or war, or other unexpected events may affect the value of our debt and equity securities, the markets in which we operate and our results of operations."
+            },
+            {
+              "id": "p28",
+              "heading": "We rely on information technology in our operations, and any material failure, inadequacy, interruption or security failure of that technology could harm our business."
+            },
+            {
+              "id": "p29",
+              "heading": "Volatility in market and economic conditions may impact the accuracy of the various estimates used in the preparation of our financial statements and footnotes to the financial statements."
+            },
+            {
+              "id": "p30",
+              "heading": "Inherent limitations of internal controls over financial statements, disclosure controls and safeguarding of assets may adversely impact our financial condition and results of operations."
+            },
+            {
+              "id": "p31",
+              "heading": "Our business operations may not generate the cash needed to make distributions on our capital stock or to service our indebtedness."
+            },
+            {
+              "id": "p32",
+              "heading": "Disruptions in the financial markets could affect our ability to obtain financing on reasonable terms and have other adverse effects on us, the market price of our common stock, and may make it more difficult or costly for us to raise capital."
+            },
+            {
+              "id": "p33",
+              "heading": "Inflation (including prolonged inflationary periods) may adversely affect our results of operations, financial condition and liquidity."
+            },
+            {
+              "id": "p34",
+              "heading": "We are subject to complex and changing laws, regulations, policies, and executive orders, which exposes us to potential liabilities, increased costs and other adverse effects on our business."
+            }
+          ]
+        },
+        "current": {
+          "accession": "0000726728-26-000011",
+          "report_date": "2025-12-31",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/726728/000072672826000011/o-20251231.htm",
+          "sha256": "2da16aeef5906c08ff349fec5438585be57be33b37b8d40bb02eacf9ee6da754",
+          "fixture": "fixtures/html/o-2025-12-31-0000726728-26-000011.html.gz",
+          "section_start": "You should consider carefully the following risk factors, together with all the other information in this report, including our financial statements and the not",
+          "section_end": "r human capital management. Collectively, these risks could materially adversely affect our business, reputation, results of operations and financial condition.",
+          "factors": [
+            {
+              "id": "c01",
+              "heading": "In order to grow, we need to continue to acquire investment properties. The acquisition of investment properties may be subject to competitive pressures."
+            },
+            {
+              "id": "c02",
+              "heading": "We may acquire properties or portfolios of properties through tax deferred contribution transactions, which could result in stockholder dilution and limit our ability to sell or refinance such assets."
+            },
+            {
+              "id": "c03",
+              "heading": "Real estate ownership is subject to particular conditions that may have a negative impact on our revenue."
+            },
+            {
+              "id": "c04",
+              "heading": "Real estate investments are illiquid. We may not be able to acquire or dispose of properties when desired or on favorable terms."
+            },
+            {
+              "id": "c05",
+              "heading": "Our acquisition of additional properties may have a significant effect on our business, liquidity, financial position and/or results of operations."
+            },
+            {
+              "id": "c06",
+              "heading": "As a property owner, we may be subject to unknown environmental liabilities."
+            },
+            {
+              "id": "c07",
+              "heading": "We are subject to risks and liabilities in connection with forming and attracting third-party investment in our fund business, investing in new or existing co-investment ventures or funds and managing properties through our fund business or other co-investment ventures."
+            },
+            {
+              "id": "c08",
+              "heading": "We are subject to additional risks from our international investments and debt."
+            },
+            {
+              "id": "c09",
+              "heading": "We may engage in development, speculative development or expansion projects or invest in new asset classes, which would subject us to additional risks that could negatively impact our operations."
+            },
+            {
+              "id": "c10",
+              "heading": "Our loans and investments, including in subordinated debt, expose us to risks associated with debt-oriented real estate investments generally."
+            },
+            {
+              "id": "c11",
+              "heading": "We may face extensive regulations from gaming and other regulatory authorities regarding current and future gaming properties."
+            },
+            {
+              "id": "c12",
+              "heading": "Property taxes may increase without notice."
+            },
+            {
+              "id": "c13",
+              "heading": "An uninsured loss or a loss that exceeds the policy limits on our properties could subject us to lost capital or revenue on those properties."
+            },
+            {
+              "id": "c14",
+              "heading": "Changing and increasing expectations from regulators and other stakeholders regarding sustainability practices and reporting could impact our business practices, cause us to incur additional costs and expose us to new risks."
+            },
+            {
+              "id": "c15",
+              "heading": "The value of certain of our investment in real property may be reduced as the result of the expiration or loss of local tax abatements, tax credit programs or other governmental incentives."
+            },
+            {
+              "id": "c16",
+              "heading": "Our business is subject to risks associated with climate change."
+            },
+            {
+              "id": "c17",
+              "heading": "If we fail to qualify as a REIT, it could adversely impact us, and the amount of dividends we are able to pay would decrease, which could adversely affect the market price of our capital stock and the value of our debt securities."
+            },
+            {
+              "id": "c18",
+              "heading": "Changes in U.S. or non-U.S. tax laws and regulations, including changes to tax rates and legislative or other actions may adversely affect us or our investors."
+            },
+            {
+              "id": "c19",
+              "heading": "Distribution requirements imposed by law limit our flexibility."
+            },
+            {
+              "id": "c20",
+              "heading": "Our charter contains restrictions upon ownership of our common stock."
+            },
+            {
+              "id": "c21",
+              "heading": "Our success is dependent on the financial stability of our clients."
+            },
+            {
+              "id": "c22",
+              "heading": "Negative market conditions, global economic and political uncertainties or adverse events affecting our existing or potential clients or the industries in which they operate, could have an adverse impact on our ability to attract new clients, re-lease space, collect rent or renew leases, which could adversely affect our cash flow from operations, our ability to maintain or increase our current dividend levels and inhibit growth."
+            },
+            {
+              "id": "c23",
+              "heading": "The bankruptcy or insolvency of a client, borrower or guarantor could result in the termination of the lease agreement, loan agreement, or guarantee, as applicable."
+            },
+            {
+              "id": "c24",
+              "heading": "Future issuances of equity securities could dilute the interest of holders of our common stock."
+            },
+            {
+              "id": "c25",
+              "heading": "We are subject to risks associated with debt and preferred stock financing."
+            },
+            {
+              "id": "c26",
+              "heading": "The market value and trading volume of our capital stock and debt securities could be substantially affected by various factors."
+            },
+            {
+              "id": "c27",
+              "heading": "Litigation risks could affect our business."
+            },
+            {
+              "id": "c28",
+              "heading": "We depend on key personnel."
+            },
+            {
+              "id": "c29",
+              "heading": "Natural disasters, terrorist attacks, acts of violence or war or other unexpected events may affect the value of our debt and equity securities, the markets in which we operate and our results of operations."
+            },
+            {
+              "id": "c30",
+              "heading": "We rely on information technology in our operations, and any material failure, inadequacy, interruption or security failure of that technology could harm our business."
+            },
+            {
+              "id": "c31",
+              "heading": "Volatility in market and economic conditions may impact the accuracy of the various estimates used in the preparation of our financial statements and footnotes to the financial statements."
+            },
+            {
+              "id": "c32",
+              "heading": "Inherent limitations of internal controls over financial statements, disclosure controls and safeguarding of assets may adversely impact our financial condition and results of operations."
+            },
+            {
+              "id": "c33",
+              "heading": "Our business operations may not generate the cash needed to make distributions on our capital stock or to service our indebtedness."
+            },
+            {
+              "id": "c34",
+              "heading": "Disruptions in the financial markets could affect our ability to obtain financing on reasonable terms and have other adverse effects on us and the market price of our common stock and may make it more difficult or costly for us to raise capital."
+            },
+            {
+              "id": "c35",
+              "heading": "Inflation (including prolonged inflationary periods) may adversely affect our results of operations, financial condition and liquidity."
+            },
+            {
+              "id": "c36",
+              "heading": "We are subject to complex and changing laws, regulations, policies and executive orders, which exposes us to potential liabilities, increased costs and other adverse effects on our business."
+            }
+          ]
+        },
+        "relations": [
+          {
+            "prior": [
+              "p01"
+            ],
+            "current": [
+              "c01"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p02"
+            ],
+            "current": [
+              "c22"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p03"
+            ],
+            "current": [
+              "c17"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p04"
+            ],
+            "current": [
+              "c18"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p05"
+            ],
+            "current": [
+              "c19"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p06"
+            ],
+            "current": [
+              "c24"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p07"
+            ],
+            "current": [
+              "c02"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p08"
+            ],
+            "current": [
+              "c25"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p09"
+            ],
+            "current": [
+              "c03"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p10"
+            ],
+            "current": [
+              "c04"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p11"
+            ],
+            "current": [
+              "c05"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p12"
+            ],
+            "current": [
+              "c06"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p13"
+            ],
+            "current": [
+              "c07"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p14"
+            ],
+            "current": [
+              "c08"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p15"
+            ],
+            "current": [
+              "c09"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p16"
+            ],
+            "current": [
+              "c12"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p17"
+            ],
+            "current": [
+              "c11"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p18"
+            ],
+            "current": [
+              "c13"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p20"
+            ],
+            "current": [
+              "c16"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p21"
+            ],
+            "current": [
+              "c14"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p22"
+            ],
+            "current": [
+              "c20"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p23"
+            ],
+            "current": [
+              "c15"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p24"
+            ],
+            "current": [
+              "c26"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p25"
+            ],
+            "current": [
+              "c27"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p26"
+            ],
+            "current": [
+              "c28"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p27"
+            ],
+            "current": [
+              "c29"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p28"
+            ],
+            "current": [
+              "c30"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p29"
+            ],
+            "current": [
+              "c31"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p30"
+            ],
+            "current": [
+              "c32"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p31"
+            ],
+            "current": [
+              "c33"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p32"
+            ],
+            "current": [
+              "c34"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p33"
+            ],
+            "current": [
+              "c35"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p34"
+            ],
+            "current": [
+              "c36"
+            ],
+            "kind": "match",
+            "note": ""
+          },
+          {
+            "prior": [
+              "p19"
+            ],
+            "current": [],
+            "kind": "removed",
+            "note": ""
+          },
+          {
+            "prior": [],
+            "current": [
+              "c10"
+            ],
+            "kind": "added",
+            "note": ""
+          },
+          {
+            "prior": [],
+            "current": [
+              "c21"
+            ],
+            "kind": "added",
+            "note": ""
+          },
+          {
+            "prior": [],
+            "current": [
+              "c23"
+            ],
+            "kind": "added",
+            "note": ""
+          }
+        ]
+      },
+      "documents": [
+        {
+          "side": "prior",
+          "accession": "0000726728-25-000055",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/726728/000072672825000055/o-20241231.htm",
+          "source_sha256": "cf45b6251e649c2e782eeca2c3db60d5ff309eb8b66b24ca72f7b0a7e877cf6e",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 34,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        },
+        {
+          "side": "current",
+          "accession": "0000726728-26-000011",
+          "source_url": "https://www.sec.gov/Archives/edgar/data/726728/000072672826000011/o-20251231.htm",
+          "source_sha256": "2da16aeef5906c08ff349fec5438585be57be33b37b8d40bb02eacf9ee6da754",
+          "extractor": "edgartools",
+          "primary_version": "5.62.0",
+          "flags": [],
+          "start_ok": true,
+          "end_ok": true,
+          "boundaries_pass": true,
+          "heading_starts": {
+            "tp": 36,
+            "fp": 0,
+            "fn": 0,
+            "precision": 1.0,
+            "recall": 1.0,
+            "f1": 1.0
+          }
+        }
+      ],
+      "errors": [],
+      "alignment": {
+        "links_end_to_end": {
+          "tp": 33,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "links_on_detected_headings": {
+          "tp": 33,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "added": {
+          "tp": 3,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "removed": {
+          "tp": 1,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "reference_links": 33,
+        "reference_links_with_both_headings_detected": 33,
+        "unresolved_reference_factors": 0,
+        "split_groups": 0,
+        "merge_groups": 0
+      }
+    }
+  ]
+}

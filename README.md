@@ -15,7 +15,9 @@ production deployment remain later milestones.
 Milestone 6a adds an offline [five-pair evaluation pilot](pipeline/tests/golden/README.md)
 and a [measured error report](docs/EVALUATION-PILOT.md). Its labels are agent-reviewed;
 independent human adjudication and the full 30-pair evaluation remain pending.
-See [the next fixes](docs/EVALUATION-NEXT.md) before expanding the leaderboard.
+Milestone 6b fixes Intel's paragraph fragmentation and section overrun; see the
+[new measured run](docs/EVALUATION-INTEL-FIXED.md) and
+[remaining work](docs/EVALUATION-NEXT.md) before expanding the leaderboard.
 
 ![Scaffold homepage preview](docs/scaffold-preview.png)
 

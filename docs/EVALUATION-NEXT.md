@@ -7,7 +7,18 @@ record exact counts, source checksums, label hash and component versions.
 This is an agent-reviewed development baseline; independent human adjudication
 and a held-out benchmark remain pending.
 
-## 1. Fix Intel segmentation before ranking companies
+## Intel fix follow-up
+
+Extraction v3 and segmentation v3 fix the first two issues below. The same
+reference labels and source hashes produce 10/10 passing boundary checks and
+262 true / 0 extra / 0 missed risk starts. End-to-end continuity changes from
+123 true / 113 false / 5 missed links to 123 true / 0 false / 5 missed links.
+False additions decrease from 35 to 4; false removals from 65 to 2. Split/merge
+handling remains the next code change. See [the new run](EVALUATION-INTEL-FIXED.md)
+and [its JSON](evaluation-intel-fixed.json); the original baseline is retained.
+These are development-set measurements, not population estimates.
+
+## 1. Intel segmentation — fixed in segment-v3
 
 All 262 labeled standalone risk starts are present in the predictions, but Intel
 produces 320 additional paragraph-sized risk units (176 prior, 144 current).
@@ -25,7 +36,7 @@ Do not tune embedding thresholds first: semantic matching of these fragmented
 units yields 113 false continuity links in the pilot. Fix the segmentation input
 and rerun the same frozen reference labels before comparing matchers.
 
-## 2. Stop extraction at Intel's actual risk-section endpoint
+## 2. Intel extraction boundary — fixed in extract-v3
 
 The prior Intel filing's Risk Factors ends before “Sales and Marketing,” followed
 by other chapter content. The selected extraction includes subsequent material;
