@@ -22,3 +22,6 @@ out/
 *.db
 *.db-shm
 *.db-wal
+
+# Per-agent board cursors, claim tokens and local task state
+.board/

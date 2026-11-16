@@ -9,6 +9,12 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  coordination:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash -n board.sh
+      - run: python3 -m unittest discover -s tools -v
   pipeline:
     runs-on: ubuntu-latest
     defaults:

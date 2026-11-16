@@ -6,7 +6,7 @@ Python pipeline and a static Next.js reading interface.
 
 [Live development preview](https://not-so-lazy-seven.vercel.app/) ·
 [Documentation](docs/README.md) · [Roadmap and review stack](docs/PROJECT-STATUS.md) ·
-[Contributing](CONTRIBUTING.md)
+[Contributing](CONTRIBUTING.md) · [Agent board](docs/AGENT-BOARD.md)
 
 > **Development status — October 25, 2026.** `main` contains the complete current
 > application, pipeline, evaluation evidence and documentation. The hosted site
